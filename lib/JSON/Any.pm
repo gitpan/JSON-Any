@@ -1,6 +1,6 @@
 ##############################################################################
 # JSON::Any
-# v1.02
+# v1.03
 # Copyright (c) 2007 Chris Thompson
 ##############################################################################
 
@@ -115,11 +115,11 @@ JSON::Any - Wrapper Class for the various JSON classes.
 
 =head1 VERSION
 
-Version 1.02
+Version 1.03
 
 =cut
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 =head1 SYNOPSIS
 
@@ -249,7 +249,7 @@ sub objToJson {
     my $self = shift;
     my $obj  = shift;
     if ( ref $self ) {
-        croak "No $handler Object created!" unless exists $self->{obj};
+        croak "No $handler Object created!" unless exists $self->{[0]};
         my $method = $self->[0]->can($encoder);
         croak "$handler can't execute $encoder" unless $method;
         return $self->[0]->$method($obj);
@@ -294,7 +294,7 @@ sub jsonToObj {
     my $self = shift;
     my $obj  = shift;    
     if ( ref $self ) {
-        croak "No $handler Object created!" unless exists $self->{obj};
+        croak "No $handler Object created!" unless exists $self->{[0]};
         my $method = $self->[0]->can($decoder);
         croak "$handler can't execute $encoder" unless $method;
         return $self->[0]->$method($obj);

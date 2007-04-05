@@ -1,8 +1,12 @@
 Revision history for JSON-Any
 
-1.00    Fri Mar 23 10:24:50 EDT 2007
-        o Initial Release
-        o Currently only supports objToJson and jsonToObj
+1.03    Thu Apr 05 15:30:47 EDT 2007
+	o Oops, 1.02 released with a bug. from the array based object.
+
+1.02    Thu Apr 05 15:02:47 EDT 2007
+	o Changed object to be array based, for speed, at request
+	  of xantus for POE::Filter::JSON.
+	0 POD fixes, per http://rt.cpan.org/Public/Bug/Display.html?id=25991
 
 1.01    Thu Apr 05 13:06:17 EDT 2007
         o Extensive code from Chris 'Perigrin' Prather, to extend
@@ -14,7 +18,7 @@ Revision history for JSON-Any
           underlying JSON object. These values are not universal, and so
           are do not work across different JSON engines.
 
-1.02    Thu Apr 05 15:02:47 EDT 2007
-	o Changed object to be array based, for speed, at request
-	  of xantus for POE::Filter::JSON.
-	0 POD fixes, per http://rt.cpan.org/Public/Bug/Display.html?id=25991
+1.00    Fri Mar 23 10:24:50 EDT 2007
+        o Initial Release
+        o Currently only supports objToJson and jsonToObj
+
