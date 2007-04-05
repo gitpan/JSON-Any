@@ -3,3 +3,13 @@ Revision history for JSON-Any
 1.00    Fri Mar 23 10:24:50 EDT 2007
         o Initial Release
         o Currently only supports objToJson and jsonToObj
+
+1.01    Thu Apr 05 13:06:17 EDT 2007
+        o Extensive code from Chris 'Perigrin' Prather, to extend
+          the API to include aliases for other JSON modules. It is
+          now possible to use the API for any underlying JSON module
+          transparently.
+        o Added ->handler() to return the underlying JSON object.
+        o new() changed to allow configuration args to be passed to the
+          underlying JSON object. These values are not universal, and so
+          are do not work across different JSON engines.

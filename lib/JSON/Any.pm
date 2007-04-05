@@ -1,6 +1,6 @@
 ##############################################################################
 # JSON::Any
-# v1.00
+# v1.01
 # Copyright (c) 2007 Chris Thompson
 ##############################################################################
 
@@ -9,64 +9,153 @@ package JSON::Any;
 use warnings;
 use strict;
 use Carp;
-my $handler;
-	
-sub import {
-	my $class = shift;
-	my @order = @_;
 
-	 
-	@order = qw(XS JSON DWIW Syck) unless @order;
+my ( %conf, $handler, $encoder, $decoder );
 
-    foreach my $testmod (@order) {
-	        $testmod = "JSON::$testmod" unless $testmod eq "JSON";
-			eval "require $testmod";
-			unless($@) {
-				$handler = $testmod;
-				last;
-			}
-		}
-		
-		croak "Couldn't find a JSON Package." unless $handler;
+BEGIN {
+    %conf = (
+        json => {
+            encoder       => 'objToJson',
+            decoder       => 'jsonToObj',
+            create_object => sub {
+                my ($self) = @_;
+                my @params = qw(
+                  autoconv
+                  skipinvalid
+                  execcoderef
+                  pretty
+                  indent
+                  delimiter
+                  keysort
+                  convblessed
+                  selfconvert
+                  singlequote
+                );
+                return $handler->new( map { $_ => $self->{$_} } @params );
+            },
+        },
+
+        json_dwiw => {
+            encoder       => 'to_json',
+            decoder       => 'from_json',
+            create_object => sub {
+                my ($self) = @_;
+                my @params = qw(bare_keys);
+                return $handler->new( { map { $_ => $self->{$_} } @params } );
+            },
+        },
+
+        json_xs => {
+            encoder       => 'to_json',
+            decoder       => 'from_json',
+            create_object => sub {
+                my ($self) = @_;
+
+                my @params = qw(
+                  ascii
+                  utf8
+                  pretty
+                  indent
+                  space_before
+                  space_after
+                  canonical
+                  allow_nonref
+                  shrink
+                  max_depth
+                );
+                               
+                my $obj = $handler->new;                
+                for my $mutator (@params) {
+                    next unless exists $self->{$mutator};
+                    $obj = $obj->$mutator( $self->{$mutator} );
+                }                
+                $encoder = 'encode';
+                $decoder = 'decode';
+                return $obj;
+            },
+        },
+        json_syck => {
+            encoder => 'Dump',
+            decoder => 'Load',
+        },
+    );
+
+    # JSON::PC claims it has the same API as JSON
+    $conf{json_pc} = $conf{json};
 }
 
+sub import {
+    my $class = shift;
+    my @order = @_;
+
+    ( $handler, $encoder, $decoder ) = ();
+
+    @order = qw(XS JSON DWIW Syck) unless @order;
+
+    foreach my $testmod (@order) {
+        $testmod = "JSON::$testmod" unless $testmod eq "JSON";
+        eval "require $testmod";
+        unless ($@) {
+            $handler = $testmod;            
+            ( my $key = lc($handler) ) =~ s/::/_/g;
+            $encoder = $conf{$key}->{encoder};
+            $decoder = $conf{$key}->{decoder};
+            last;
+        }
+    }
+
+    croak "Couldn't find a JSON Package." unless $handler;
+    croak "Couldn't find a decoder method." unless $decoder;
+    croak "Couldn't find a encoder method." unless $encoder;
+}
 
 =head1 NAME
 
-JSON::Any - Wrapper Class for the myriad JSON classes.
+JSON::Any - Wrapper Class for the various JSON classes.
 
 =head1 VERSION
 
-Version 1.00
+Version 1.01
 
 =cut
 
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 =head1 SYNOPSIS
 
-This module will provide a coherent API to bring together the various JSON modules
-currently on CPAN.
+This module will provide a coherent API to bring together the various JSON
+modules currently on CPAN. This module will allow you to code to any JSON API
+and have it work regardless of which JSON module is actually installed.
 
-    use JSON::Any;
+	use JSON::Any;
 
 	my $j = JSON::Any->new;
 
 	$json = $j->objToJson({foo=>'bar', baz=>'quux'});
-
 	$obj = $j->jsonToObj($json);
+
+or
+
+	$json = $j->encode({foo=>'bar', baz=>'quux'});
+	$obj = $j->decode($json);
+
+or
+
+	$json = $j->Dump({foo=>'bar', baz=>'quux'});
+	$obj = $j->Load($json);
+
+or
+
+	$json = $j->to_json({foo=>'bar', baz=>'quux'});
+	$obj = $j->from_json($json);
 
 or without creating an object:
 
 	$json = JSON::Any->objToJson({foo=>'bar', baz=>'quux'});
-
 	$obj = JSON::Any->jsonToObj($json);
 
-JSON::Any currently only implements converting back and forth between JSON and hashrefs. 
-There is considerably more functionality in many of the JSON modules. Ability to access these
-will be provided in subsequent versions of JSON::Any.
-
-On load, JSON::Any will find a valid JSON module in your @INC by looking for them in this order:
+On load, JSON::Any will find a valid JSON module in your @INC by looking 
+for them in this order:
 
 	JSON::XS 
 	JSON 
@@ -85,21 +174,25 @@ Specifying an order that is missing one of the modules will prevent that module 
 
 This will check in that order, and will never attempt to load JSON::Syck.
 
-
-
 =head1 FUNCTIONS
 
 =item C<new>
 
-There are currently no arguments to C<new>
+Will take any of the parameters for the underlying system and pass them through. 
+However these values don't map between JSON modules, so, from a portability
+standpoint this is really only helpful for those paramters that happen
+to have the same name. This will be addressed in a future release.
 
 =cut
 
 sub new {
     my $class = shift;
-    my %conf = @_;
-
-    return bless {%conf}, $class;
+    my $self  = bless {@_}, $class;
+    ( my $key = lc($handler) ) =~ s/::/_/g;
+    if ( my $creator = $conf{$key}->{create_object} ) {
+        $self->{obj} = $creator->($self);
+    }
+    return $self;
 }
 
 =item C<handlerType>
@@ -109,8 +202,24 @@ Takes no arguments, returns a string indicating which JSON Module is in use.
 =cut
 
 sub handlerType {
-	my $class = shift;
-	$handler;
+    my $class = shift;
+    $handler;
+}
+
+=item C<handler>
+
+Takes no arguments, if called on an object returns the internal JSON::* 
+object in use.  Otherwise returns the JSON::* package we are using for 
+class methods.
+
+=cut
+
+sub handler {
+    my $self = shift;
+    if ( ref $self ) {
+        return $self->{obj};
+    }
+    return $handler;
 }
 
 =item C<objToJson>
@@ -120,18 +229,34 @@ It returns the JSON text in a scalar.
 
 =cut
 
-
 sub objToJson {
-	my $self = shift;
-	my $obj = shift;
-	
-	if (($handler eq 'JSON::PC') || ($handler eq 'JSON')) {
-		return $handler->can('objToJson')->($obj);
-	} elsif (($handler eq 'JSON::DWIW') || ($handler eq 'JSON::XS')) {
-		return $handler->can('to_json')->($obj);		
-	} elsif ($handler eq 'JSON::Syck'){
-		return $handler->can('Dump')->($obj);
-	}	
+    my $self = shift;
+    my $obj  = shift;
+    if ( ref $self ) {
+        croak "No $handler Object created!" unless exists $self->{obj};
+        my $method = $self->{obj}->can($encoder);
+        croak "$handler can't execute $encoder" unless $method;
+        return $self->{obj}->$method($obj);
+    }
+    return $handler->can($encoder)->($obj);
+}
+
+=item C<to_json>
+
+=item C<Dump>
+
+=item C<encode>
+
+Aliases for objToJson, can be used interchangeably, regardless of the 
+underlying JSON module.
+
+=cut
+
+{
+    no strict "refs";
+    *to_json = \&objToJson;
+    *Dump    = \&objToJson;
+    *encode  = \&objToJson;
 }
 
 =item C<jsonToObj>
@@ -141,20 +266,35 @@ back into a hashref.
 
 =cut
 
-
 sub jsonToObj {
-	my $self = shift;
-	my $obj = shift;
-	
-	if (($handler eq 'JSON::PC') || ($handler eq 'JSON')) {
-		return $handler->can('jsonToObj')->($obj);
-	} elsif (($handler eq 'JSON::DWIW') || ($handler eq 'JSON::XS')) {
-		return $handler->can('from_json')->($obj);		
-	} elsif ($handler eq 'JSON::Syck'){
-		return $handler->can('Load')->($obj);
-	}
+    my $self = shift;
+    my $obj  = shift;    
+    if ( ref $self ) {
+        croak "No $handler Object created!" unless exists $self->{obj};
+        my $method = $self->{obj}->can($decoder);
+        croak "$handler can't execute $encoder" unless $method;
+        return $self->{obj}->$method($obj);
+    }
+    $handler->can($decoder)->($obj);
 }
 
+=item C<from_json>
+
+=item C<Load>
+
+=item C<decode>
+
+Aliases for jsonToObj, can be used interchangeably, regardless of the 
+underlying JSON module.
+
+=cut
+
+{
+    no strict "refs";
+    *from_json = \&jsonToObj;
+    *Load      = \&jsonToObj;
+    *decode    = \&jsonToObj;
+}
 
 =head1 AUTHOR
 
@@ -170,11 +310,15 @@ your bug as I make changes.
 
 =head1 ACKNOWLEDGEMENTS
 
-This module came about after discussions on irc.perl.org about the fact that there were
-now six separate JSON perl modules with different interfaces.
+This module came about after discussions on irc.perl.org about the fact 
+that there were now six separate JSON perl modules with different interfaces.
 
-In the spirit of Class::Any, I have created JSON::Any with the considerable help of
-Chris 'Perigrin' Prather, and Matt 'mst' Trout.
+In the spirit of Class::Any, JSON::Any was created with the considerable 
+help of Chris 'perigrin' Prather, and Matt 'mst' Trout.
+
+JSON::Any 1.01 was written almost entirely by Chris Prather.
+
+San Dimas High School Football Rules!
 
 =head1 COPYRIGHT & LICENSE
 
@@ -185,4 +329,4 @@ under the same terms as Perl itself.
 
 =cut
 
-1; # End of JSON::Any
+1;    # End of JSON::Any
