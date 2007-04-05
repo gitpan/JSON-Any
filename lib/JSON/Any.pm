@@ -1,6 +1,6 @@
 ##############################################################################
 # JSON::Any
-# v1.01
+# v1.02
 # Copyright (c) 2007 Chris Thompson
 ##############################################################################
 
@@ -115,11 +115,11 @@ JSON::Any - Wrapper Class for the various JSON classes.
 
 =head1 VERSION
 
-Version 1.01
+Version 1.02
 
 =cut
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 
 =head1 SYNOPSIS
 
@@ -167,7 +167,7 @@ And loading the first one it finds.
 You may change the order by specifying it on the C<use JSON::Any> line:
 
 	use JSON::Any qw(DWIW Syck XS JSON);
-	
+
 Specifying an order that is missing one of the modules will prevent that module from being used:
 
 	use JSON::Any qw(DWIW XS JSON);
@@ -176,6 +176,8 @@ This will check in that order, and will never attempt to load JSON::Syck.
 
 =head1 FUNCTIONS
 
+=over
+
 =item C<new>
 
 Will take any of the parameters for the underlying system and pass them through. 
@@ -183,21 +185,27 @@ However these values don't map between JSON modules, so, from a portability
 standpoint this is really only helpful for those paramters that happen
 to have the same name. This will be addressed in a future release.
 
+=back
+
 =cut
 
 sub new {
     my $class = shift;
-    my $self  = bless {@_}, $class;
+    my $self  = bless [], $class;
     ( my $key = lc($handler) ) =~ s/::/_/g;
     if ( my $creator = $conf{$key}->{create_object} ) {
-        $self->{obj} = $creator->($self);
+        $self->[0] = $creator->(@_);
     }
     return $self;
 }
 
+=over
+
 =item C<handlerType>
 
 Takes no arguments, returns a string indicating which JSON Module is in use.
+
+=back
 
 =cut
 
@@ -206,26 +214,34 @@ sub handlerType {
     $handler;
 }
 
+=over
+
 =item C<handler>
 
 Takes no arguments, if called on an object returns the internal JSON::* 
 object in use.  Otherwise returns the JSON::* package we are using for 
 class methods.
 
+=back
+
 =cut
 
 sub handler {
     my $self = shift;
     if ( ref $self ) {
-        return $self->{obj};
+        return $self->[0];
     }
     return $handler;
 }
+
+=over
 
 =item C<objToJson>
 
 Takes a single argument, a hashref to be converted into JSON.
 It returns the JSON text in a scalar.
+
+=back
 
 =cut
 
@@ -234,12 +250,14 @@ sub objToJson {
     my $obj  = shift;
     if ( ref $self ) {
         croak "No $handler Object created!" unless exists $self->{obj};
-        my $method = $self->{obj}->can($encoder);
+        my $method = $self->[0]->can($encoder);
         croak "$handler can't execute $encoder" unless $method;
-        return $self->{obj}->$method($obj);
+        return $self->[0]->$method($obj);
     }
     return $handler->can($encoder)->($obj);
 }
+
+=over
 
 =item C<to_json>
 
@@ -250,6 +268,8 @@ sub objToJson {
 Aliases for objToJson, can be used interchangeably, regardless of the 
 underlying JSON module.
 
+=back
+
 =cut
 
 {
@@ -259,10 +279,14 @@ underlying JSON module.
     *encode  = \&objToJson;
 }
 
+=over
+
 =item C<jsonToObj>
 
 Takes a single argument, a string of JSON text to be converted
 back into a hashref.
+
+=back
 
 =cut
 
@@ -271,12 +295,14 @@ sub jsonToObj {
     my $obj  = shift;    
     if ( ref $self ) {
         croak "No $handler Object created!" unless exists $self->{obj};
-        my $method = $self->{obj}->can($decoder);
+        my $method = $self->[0]->can($decoder);
         croak "$handler can't execute $encoder" unless $method;
-        return $self->{obj}->$method($obj);
+        return $self->[0]->$method($obj);
     }
     $handler->can($decoder)->($obj);
 }
+
+=over
 
 =item C<from_json>
 
@@ -286,6 +312,8 @@ sub jsonToObj {
 
 Aliases for jsonToObj, can be used interchangeably, regardless of the 
 underlying JSON module.
+
+=back
 
 =cut
 

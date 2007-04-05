@@ -13,3 +13,8 @@ Revision history for JSON-Any
         o new() changed to allow configuration args to be passed to the
           underlying JSON object. These values are not universal, and so
           are do not work across different JSON engines.
+
+1.02    Thu Apr 05 15:02:47 EDT 2007
+	o Changed object to be array based, for speed, at request
+	  of xantus for POE::Filter::JSON.
+	0 POD fixes, per http://rt.cpan.org/Public/Bug/Display.html?id=25991
