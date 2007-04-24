@@ -1,5 +1,8 @@
 Revision history for JSON-Any
 
+1.04    Tue Apr 24 12:46:17 EDT 2007
+	o Oops, 1.03 released with a bug in it's object creation.
+
 1.03    Thu Apr 05 15:30:47 EDT 2007
 	o Oops, 1.02 released with a bug. from the array based object.
 
