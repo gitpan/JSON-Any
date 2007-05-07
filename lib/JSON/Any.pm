@@ -1,6 +1,6 @@
 ##############################################################################
 # JSON::Any
-# v1.04
+# v1.05
 # Copyright (c) 2007 Chris Thompson
 ##############################################################################
 
@@ -90,6 +90,7 @@ sub import {
 
     ( $handler, $encoder, $decoder ) = ();
 
+    @order = split /\s/, $ENV{JSON_ANY_ORDER} unless @order;
     @order = qw(XS JSON DWIW Syck) unless @order;
 
     foreach my $testmod (@order) {
@@ -115,11 +116,11 @@ JSON::Any - Wrapper Class for the various JSON classes.
 
 =head1 VERSION
 
-Version 1.04
+Version 1.05
 
 =cut
 
-our $VERSION = '1.04';
+our $VERSION = '1.05';
 
 =head1 SYNOPSIS
 
@@ -194,7 +195,9 @@ sub new {
     my $self  = bless [], $class;
     ( my $key = lc($handler) ) =~ s/::/_/g;
     if ( my $creator = $conf{$key}->{create_object} ) {
-        $self->[0] = $creator->({@_});
+        my @config = @_;
+        push @config, map { split /=/, $_  } split /,\s*/, $ENV{JSON_ANY_CONFIG};
+        $self->[0] = $creator->({@config});
     }
     return $self;
 }
