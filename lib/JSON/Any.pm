@@ -1,6 +1,6 @@
 ##############################################################################
 # JSON::Any
-# v1.05
+# v1.06
 # Copyright (c) 2007 Chris Thompson
 ##############################################################################
 
@@ -63,12 +63,12 @@ BEGIN {
                   shrink
                   max_depth
                 );
-                               
-                my $obj = $handler->new;                
+
+                my $obj = $handler->new;
                 for my $mutator (@params) {
                     next unless exists $self->{$mutator};
                     $obj = $obj->$mutator( $self->{$mutator} );
-                }                
+                }
                 $encoder = 'encode';
                 $decoder = 'decode';
                 return $obj;
@@ -90,14 +90,16 @@ sub import {
 
     ( $handler, $encoder, $decoder ) = ();
 
-    @order = split /\s/, $ENV{JSON_ANY_ORDER} unless @order;
+    if ( $ENV{JSON_ANY_ORDER} && !scalar @order ) {
+        @order = split /\s/, $ENV{JSON_ANY_ORDER};
+    }
     @order = qw(XS JSON DWIW Syck) unless @order;
 
     foreach my $testmod (@order) {
         $testmod = "JSON::$testmod" unless $testmod eq "JSON";
         eval "require $testmod";
         unless ($@) {
-            $handler = $testmod;            
+            $handler = $testmod;
             ( my $key = lc($handler) ) =~ s/::/_/g;
             $encoder = $conf{$key}->{encoder};
             $decoder = $conf{$key}->{decoder};
@@ -105,7 +107,7 @@ sub import {
         }
     }
 
-    croak "Couldn't find a JSON Package." unless $handler;
+    croak "Couldn't find a JSON Package."   unless $handler;
     croak "Couldn't find a decoder method." unless $decoder;
     croak "Couldn't find a encoder method." unless $encoder;
 }
@@ -116,11 +118,11 @@ JSON::Any - Wrapper Class for the various JSON classes.
 
 =head1 VERSION
 
-Version 1.05
+Version 1.06
 
 =cut
 
-our $VERSION = '1.05';
+our $VERSION = '1.06';
 
 =head1 SYNOPSIS
 
@@ -173,7 +175,8 @@ Specifying an order that is missing one of the modules will prevent that module 
 
 	use JSON::Any qw(DWIW XS JSON);
 
-This will check in that order, and will never attempt to load JSON::Syck.
+This will check in that order, and will never attempt to load JSON::Syck. This can also be set via
+the $ENV{JSON_ANY_ORDER} environment variable.
 
 =head1 FUNCTIONS
 
@@ -192,12 +195,15 @@ to have the same name. This will be addressed in a future release.
 
 sub new {
     my $class = shift;
-    my $self  = bless [], $class;
+    my $self = bless [], $class;
     ( my $key = lc($handler) ) =~ s/::/_/g;
     if ( my $creator = $conf{$key}->{create_object} ) {
         my @config = @_;
-        push @config, map { split /=/, $_  } split /,\s*/, $ENV{JSON_ANY_CONFIG};
-        $self->[0] = $creator->({@config});
+        if ( $ENV{JSON_ANY_CONFIG} ) {
+            push @config, map { split /=/, $_ } split /,\s*/,
+              $ENV{JSON_ANY_CONFIG};
+        }
+        $self->[0] = $creator->( {@config} );
     }
     return $self;
 }
@@ -295,7 +301,7 @@ back into a hashref.
 
 sub jsonToObj {
     my $self = shift;
-    my $obj  = shift;    
+    my $obj  = shift;
     if ( ref $self ) {
         croak "No $handler Object created!" unless exists $self->[0];
         my $method = $self->[0]->can($decoder);
@@ -330,6 +336,7 @@ underlying JSON module.
 =head1 AUTHOR
 
 Chris Thompson, C<< <cthom at cpan.org> >>
+Chris Prather, C<< <perigrin at cpan.org> >>
 
 =head1 BUGS
 
@@ -345,9 +352,7 @@ This module came about after discussions on irc.perl.org about the fact
 that there were now six separate JSON perl modules with different interfaces.
 
 In the spirit of Class::Any, JSON::Any was created with the considerable 
-help of Chris 'perigrin' Prather, and Matt 'mst' Trout.
-
-JSON::Any 1.01 was written almost entirely by Chris Prather.
+help of Matt 'mst' Trout.
 
 San Dimas High School Football Rules!
 
