@@ -1,14 +1,19 @@
 #!/usr/bin/perl -w
 
 use strict;
-use Test::More no_plan => 0;
-
-BEGIN {
-    $ENV{JSON_ANY_ORDER} = qw(JSON);
-}
+use Test::More no_plan => 1;
 use JSON::Any;
-is_deeply( $ENV{JSON_ANY_ORDER}, qw(JSON) );
-is( JSON::Any->handlerType, 'JSON' );
+
+SKIP: {
+    eval { require JSON; };
+    skip "JSON not installed: $@", 1 if $@;
+
+    $ENV{JSON_ANY_ORDER} = qw(JSON);
+    JSON::Any->import();
+    skip "JSON not installed: $@", 1 if $@;
+    is_deeply( $ENV{JSON_ANY_ORDER}, qw(JSON) );
+    is( JSON::Any->handlerType, 'JSON' );
+}
 
 SKIP: {
     eval { require JSON::XS; };
