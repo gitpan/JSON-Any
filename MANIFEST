@@ -12,7 +12,7 @@ inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 lib/JSON/Any.pm
 Makefile.PL
-MANIFEST
+MANIFEST			This list of files
 META.yml
 README
 t/00-load.t
@@ -20,6 +20,7 @@ t/01-JSON.t
 t/02-JSON-XS.t
 t/03-JSON-DWIW.t
 t/04-ENV.t
+t/10_unicode.t
 t/kwalitee.t
 t/pod-coverage.t
 t/pod.t

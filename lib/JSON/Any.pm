@@ -1,6 +1,6 @@
 ##############################################################################
 # JSON::Any
-# v1.08
+# v1.09
 # Copyright (c) 2007 Chris Thompson
 ##############################################################################
 
@@ -16,23 +16,27 @@ JSON::Any - Wrapper Class for the various JSON classes.
 
 =head1 VERSION
 
-Version 1.08
+Version 1.09
 
 =cut
 
-our $VERSION = '1.08';
+our $VERSION = '1.09';
+
+our $UTF8;
 
 my ( %conf, $handler, $encoder, $decoder );
 use constant HANDLER => 0;
 use constant ENCODER => 1;
 use constant DECODER => 2;
+use constant UTF8    => 3;
+
 BEGIN {
     %conf = (
         json => {
             encoder       => 'objToJson',
             decoder       => 'jsonToObj',
             create_object => sub {
-                my ($self, $conf) = @_;
+                my ( $self, $conf ) = @_;
                 my @params = qw(
                   autoconv
                   skipinvalid
@@ -44,9 +48,10 @@ BEGIN {
                   convblessed
                   selfconvert
                   singlequote
+                  utf8
                 );
                 $self->[ENCODER] = 'objToJson';
-                $self->[DECODER] = 'jsonToObj',
+                $self->[DECODER] = 'jsonToObj';
                 $self->[HANDLER] = $handler->new( map { $_ => $conf->{$_} } @params );
             },
         },
@@ -55,10 +60,11 @@ BEGIN {
             encoder       => 'to_json',
             decoder       => 'from_json',
             create_object => sub {
-                my ($self, $conf) = @_;
+                my ( $self, $conf ) = @_;
                 my @params = qw(bare_keys);
+                croak "JSON::DWIW does not support utf8" if $conf->{utf8};
                 $self->[ENCODER] = 'to_json';
-                $self->[DECODER] = 'from_json',                
+                $self->[DECODER] = 'from_json';
                 $self->[HANDLER] = $handler->new( { map { $_ => $conf->{$_} } @params } );
             },
         },
@@ -67,7 +73,9 @@ BEGIN {
             encoder       => 'to_json',
             decoder       => 'from_json',
             create_object => sub {
-                my ($self, $conf) = @_;
+                require utf8;
+                utf8->import();
+                my ( $self, $conf ) = @_;
 
                 my @params = qw(
                   ascii
@@ -88,7 +96,11 @@ BEGIN {
                     $obj = $obj->$mutator( $conf->{$mutator} );
                 }
                 $self->[ENCODER] = 'encode';
-                $self->[DECODER] = 'decode',                
+                $self->[DECODER] = sub {
+                    my ( $handler, $json ) = @_;
+                    utf8::encode($json) if utf8::is_utf8($json);
+                    $handler->decode($json);
+                };
                 $self->[HANDLER] = $obj;
             },
         },
@@ -108,10 +120,8 @@ sub import {
 
     ( $handler, $encoder, $decoder ) = ();
 
-    if ( $ENV{JSON_ANY_ORDER} ) {
-        next if @order;
-        @order = split /\s/, $ENV{JSON_ANY_ORDER};
-    }
+    @order = split /\s/, $ENV{JSON_ANY_ORDER}
+      if !@order and $ENV{JSON_ANY_ORDER};
     @order = qw(XS JSON DWIW Syck) unless @order;
 
     foreach my $testmod (@order) {
@@ -196,6 +206,15 @@ However these values don't map between JSON modules, so, from a portability
 standpoint this is really only helpful for those paramters that happen
 to have the same name. This will be addressed in a future release.
 
+The one parameter that is universally supported (to the extent that is
+supported by the underlying JSON modules) is C<utf8>. When this parameter is
+enabled all resulting JSON will be marked as unicode, and all unicode strings
+in the input data structure will be preserved as such.
+
+The actual output will vary, for example L<JSON> will encode and decode unicode
+chars (the resulting JSON is not unicode) wheras L<JSON::XS> will emit unicode
+JSON.
+
 =back
 
 =cut
@@ -210,7 +229,8 @@ sub new {
             push @config, map { split /=/, $_ } split /,\s*/,
               $ENV{JSON_ANY_CONFIG};
         }
-        $creator->( $self, {@config} );
+        $creator->( $self, my $conf = {@config} );
+        $self->[UTF8] = $conf->{utf8};
     }
     return $self;
 }
@@ -265,13 +285,26 @@ sub objToJson {
     my $self = shift;
     my $obj  = shift;
     croak 'must provide object to convert' unless defined $obj;
+
+    my $json;
+
     if ( ref $self ) {
-        croak "No $handler Object created!" unless exists $self->[HANDLER];
-        my $method = $self->[HANDLER]->can($self->[ENCODER]);
-        croak "$handler can't execute $self->[ENCODER]" unless $method;
-        return $self->[HANDLER]->$method($obj);
+        my $method;
+        unless ( ref $self->[ENCODER] ) {
+            croak "No $handler Object created!" unless exists $self->[HANDLER];
+            $method = $self->[HANDLER]->can( $self->[ENCODER] );
+            croak "$handler can't execute $self->[ENCODER]" unless $method;
+        }
+        else {
+            $method = $self->[ENCODER];
+        }
+        $json = $self->[HANDLER]->$method($obj);
+    } else {
+        $json = $handler->can($encoder)->($obj);
     }
-    return $handler->can($encoder)->($obj);
+
+    utf8::decode($json) if (ref $self ? $self->[UTF8] : $UTF8 ) and !utf8::is_utf8($json) and utf8::valid($json);
+    return $json;
 }
 
 =over
@@ -289,12 +322,9 @@ underlying JSON module.
 
 =cut
 
-{
-    no strict "refs";
-    *to_json = \&objToJson;
-    *Dump    = \&objToJson;
-    *encode  = \&objToJson;
-}
+*to_json = \&objToJson;
+*Dump    = \&objToJson;
+*encode  = \&objToJson;
 
 =over
 
@@ -310,11 +340,18 @@ back into a hashref.
 sub jsonToObj {
     my $self = shift;
     my $obj  = shift;
-        croak 'must provide json to convert' unless defined $obj;
+    croak 'must provide json to convert' unless defined $obj;
+
     if ( ref $self ) {
-        croak "No $handler Object created!" unless exists $self->[HANDLER];
-        my $method = $self->[HANDLER]->can($self->[DECODER]);
-        croak "$handler can't execute $self->[DECODER]" unless $method;
+        my $method;
+        unless ( ref $self->[DECODER] ) {
+            croak "No $handler Object created!" unless exists $self->[HANDLER];
+            $method = $self->[HANDLER]->can( $self->[DECODER] );
+            croak "$handler can't execute $self->[DECODER]" unless $method;
+        }
+        else {
+            $method = $self->[DECODER];
+        }
         return $self->[HANDLER]->$method($obj);
     }
     $handler->can($decoder)->($obj);
@@ -335,12 +372,9 @@ underlying JSON module.
 
 =cut
 
-{
-    no strict "refs";
-    *from_json = \&jsonToObj;
-    *Load      = \&jsonToObj;
-    *decode    = \&jsonToObj;
-}
+*from_json = \&jsonToObj;
+*Load      = \&jsonToObj;
+*decode    = \&jsonToObj;
 
 =head1 AUTHOR
 
@@ -367,7 +401,7 @@ San Dimas High School Football Rules!
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2007 Chris Thompson, all rights reserved.
+Copyright 2007 Chris Thompson, some rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
