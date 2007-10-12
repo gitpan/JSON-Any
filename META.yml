@@ -17,4 +17,4 @@ no_index:
     - t
 requires: 
   Carp: 0
-version: 1.09
+version: 1.10

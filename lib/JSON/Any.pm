@@ -1,6 +1,6 @@
 ##############################################################################
 # JSON::Any
-# v1.09
+# v1.10
 # Copyright (c) 2007 Chris Thompson
 ##############################################################################
 
@@ -16,11 +16,11 @@ JSON::Any - Wrapper Class for the various JSON classes.
 
 =head1 VERSION
 
-Version 1.09
+Version 1.10
 
 =cut
 
-our $VERSION = '1.09';
+our $VERSION = '1.10';
 
 our $UTF8;
 
@@ -90,17 +90,15 @@ BEGIN {
                   max_depth
                 );
 
+                local $conf->{utf8} = !$conf->{utf8}; # it means the opposite
+
                 my $obj = $handler->new;
                 for my $mutator (@params) {
                     next unless exists $conf->{$mutator};
                     $obj = $obj->$mutator( $conf->{$mutator} );
                 }
                 $self->[ENCODER] = 'encode';
-                $self->[DECODER] = sub {
-                    my ( $handler, $json ) = @_;
-                    utf8::encode($json) if utf8::is_utf8($json);
-                    $handler->decode($json);
-                };
+                $self->[DECODER] = 'decode';
                 $self->[HANDLER] = $obj;
             },
         },
