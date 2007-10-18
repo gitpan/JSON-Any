@@ -1,5 +1,8 @@
 Revision history for JSON-Any
 
+1.11	17 Oct 2007
+        o fix issue with JSON::Syck when using Object API as reported by Miyagawa
+
 1.10	12 Oct 2007
         o fix issues from http://rt.cpan.org/Public/Bug/Display.html?id=29917
 
