@@ -1,10 +1,11 @@
 --- 
 abstract: Wrapper Class for the various JSON classes.
-author: Chris Thompson, C<< <cthom at cpan.org> >>
+author: 
+  - Chris Thompson, C<< <cthom at cpan.org> >>
 build_requires: 
   Test::More: 0
 distribution_type: module
-generated_by: Module::Install version 0.67
+generated_by: Module::Install version 0.68
 license: perl
 meta-spec: 
   url: http://module-build.sourceforge.net/META-spec-v1.3.html
@@ -17,4 +18,4 @@ no_index:
     - t
 requires: 
   Carp: 0
-version: 1.13
+version: 1.14

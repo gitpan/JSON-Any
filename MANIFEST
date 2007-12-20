@@ -22,6 +22,3 @@ t/03-JSON-DWIW.t
 t/04-ENV.t
 t/05-JSON-Syck.t
 t/10_unicode.t
-t/kwalitee.t
-t/pod-coverage.t
-t/pod.t

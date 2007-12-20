@@ -10,11 +10,11 @@ requires 'Carp' => '0';
 
 feature 'JSON',
   -default => 1,
-  'JSON'   => '0';
+  'JSON'   => '2.01';
 
 feature 'JSON::XS',
   -default   => 0,
-  'JSON::XS' => '0';
+  'JSON::XS' => '2.01';
 
 feature 'JSON::PC',
   -default   => 0,
@@ -31,6 +31,11 @@ feature 'JSON::Syck',
 # Specific dependencies
 build_requires 'Test::More' => '0';
 no_index 'directory'        => 'ex';
+
+if ( $ENV{BUILD_STANDARD_TESTS} ) {
+    use_test_base;
+    use_standard_tests;
+}
 
 auto_install;
 WriteAll;
