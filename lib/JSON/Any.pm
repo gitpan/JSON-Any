@@ -16,11 +16,11 @@ JSON::Any - Wrapper Class for the various JSON classes.
 
 =head1 VERSION
 
-Version 1.16
+Version 1.17
 
 =cut
 
-our $VERSION = '1.16';
+our $VERSION = '1.17';
 
 our $UTF8;
 
@@ -35,6 +35,8 @@ BEGIN {
         json => {
             encoder       => 'encode_json',
             decoder       => 'decode_json',
+            get_true      => sub { return JSON::true(); },
+            get_false     => sub { return JSON::false(); },
             create_object => sub {
                 require utf8;
                 utf8->import();
@@ -81,6 +83,8 @@ BEGIN {
         json_dwiw => {
             encoder       => 'to_json',
             decoder       => 'from_json',
+            get_true      => sub { return JSON::DWIW->true; },
+            get_false     => sub { return JSON::DWIW->false; },
             create_object => sub {
                 my ( $self, $conf ) = @_;
                 my @params = qw(bare_keys);
@@ -94,6 +98,8 @@ BEGIN {
         json_xs_1 => {
             encoder       => 'to_json',
             decoder       => 'from_json',
+            get_true      => sub { return \1; },
+            get_false     => sub { return \0; },
             create_object => sub {
                 my ( $self, $conf ) = @_;
 
@@ -123,6 +129,8 @@ BEGIN {
         json_xs_2 => {
             encoder       => 'encode_json',
             decoder       => 'decode_json',
+            get_true      => sub { return \1; },
+            get_false     => sub { return \0; },
             create_object => sub {
                 require utf8;
                 utf8->import();
@@ -162,6 +170,8 @@ BEGIN {
         json_syck => {
             encoder       => 'Dump',
             decoder       => 'Load',
+            get_true      => sub { croak "JSON::Syck does not support special boolean values"; },
+            get_false     => sub { croak "JSON::Syck does not support special boolean values"; },
             create_object => sub {
                 my ( $self, $conf ) = @_;
                 croak "JSON::Syck does not support utf8" if $conf->{utf8};
@@ -289,6 +299,11 @@ supported by the underlying JSON modules) is C<utf8>. When this parameter is
 enabled all resulting JSON will be marked as unicode, and all unicode strings
 in the input data structure will be preserved as such.
 
+Also note that the C<allow_blessed> parameter is recognised by all the modules
+that throw exceptions when a blessed reference is given them meaning that setting
+it to true works for all modules. Of course, that means that you cannot set it
+to false intentionally in order to always get such exceptions.
+
 The actual output will vary, for example L<JSON> will encode and decode unicode
 chars (the resulting JSON is not unicode) wheras L<JSON::XS> will emit unicode
 JSON.
@@ -346,6 +361,38 @@ sub handler {
         return $self->[HANDLER];
     }
     return $handler;
+}
+
+=over
+
+=item C<true>
+
+Takes no arguments, returns the special value that the internal JSON
+object uses to map to a JSON C<true> boolean.
+
+=back
+
+=cut
+
+sub true {
+    my $key = _make_key($handler);
+    return $conf{$key}->{get_true}->();
+}
+
+=over
+
+=item C<false>
+
+Takes no arguments, returns the special value that the internal JSON
+object uses to map to a JSON C<false> boolean.
+
+=back
+
+=cut
+
+sub false {
+    my $key = _make_key($handler);
+    return $conf{$key}->{get_false}->();
 }
 
 =over
