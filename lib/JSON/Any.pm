@@ -1,14 +1,8 @@
-##############################################################################
-# JSON::Any
-# v1.16
-# Copyright (c) 2007 Chris Thompson
-##############################################################################
-
 package JSON::Any;
 
 use warnings;
 use strict;
-use Carp;
+use Carp qw(croak carp);
 
 =head1 NAME
 
@@ -16,11 +10,11 @@ JSON::Any - Wrapper Class for the various JSON classes.
 
 =head1 VERSION
 
-Version 1.18
+Version 1.20
 
 =cut
 
-our $VERSION = '1.19';
+our $VERSION = '1.20';
 
 our $UTF8;
 
@@ -43,31 +37,31 @@ BEGIN {
                 JSON->import( '-support_by_pp', '-no_export' );
                 my ( $self, $conf ) = @_;
                 my @params = qw(
-                  ascii
-                  latin1
-                  utf8
-                  pretty
-                  indent
-                  space_before
-                  space_after
-                  relaxed
-                  canonical
-                  allow_nonref
-                  allow_blessed
-                  convert_blessed
-                  filter_json_object
-                  shrink
-                  max_depth
-                  max_size
-                  loose
-                  allow_bignum
-                  allow_barekey
-                  allow_singlequote
-                  escape_slash
-                  indent_length
-                  sort_by
+                    ascii
+                    latin1
+                    utf8
+                    pretty
+                    indent
+                    space_before
+                    space_after
+                    relaxed
+                    canonical
+                    allow_nonref
+                    allow_blessed
+                    convert_blessed
+                    filter_json_object
+                    shrink
+                    max_depth
+                    max_size
+                    loose
+                    allow_bignum
+                    allow_barekey
+                    allow_singlequote
+                    escape_slash
+                    indent_length
+                    sort_by
                 );
-                local $conf->{utf8} = !$conf->{utf8};    # it means the opposite
+                local $conf->{utf8} = !$conf->{utf8};  # it means the opposite
                 my $obj = $handler->new;
 
                 for my $mutator (@params) {
@@ -91,8 +85,8 @@ BEGIN {
                 croak "JSON::DWIW does not support utf8" if $conf->{utf8};
                 $self->[ENCODER] = 'to_json';
                 $self->[DECODER] = 'from_json';
-                $self->[HANDLER] =
-                  $handler->new( { map { $_ => $conf->{$_} } @params } );
+                $self->[HANDLER]
+                    = $handler->new( { map { $_ => $conf->{$_} } @params } );
             },
         },
         json_xs_1 => {
@@ -104,16 +98,16 @@ BEGIN {
                 my ( $self, $conf ) = @_;
 
                 my @params = qw(
-                  ascii
-                  utf8
-                  pretty
-                  indent
-                  space_before
-                  space_after
-                  canonical
-                  allow_nonref
-                  shrink
-                  max_depth
+                    ascii
+                    utf8
+                    pretty
+                    indent
+                    space_before
+                    space_after
+                    canonical
+                    allow_nonref
+                    shrink
+                    max_depth
                 );
 
                 my $obj = $handler->new;
@@ -137,25 +131,25 @@ BEGIN {
                 my ( $self, $conf ) = @_;
 
                 my @params = qw(
-                  ascii
-                  latin1
-                  utf8
-                  pretty
-                  indent
-                  space_before
-                  space_after
-                  relaxed
-                  canonical
-                  allow_nonref
-                  allow_blessed
-                  convert_blessed
-                  filter_json_object
-                  shrink
-                  max_depth
-                  max_size
+                    ascii
+                    latin1
+                    utf8
+                    pretty
+                    indent
+                    space_before
+                    space_after
+                    relaxed
+                    canonical
+                    allow_nonref
+                    allow_blessed
+                    convert_blessed
+                    filter_json_object
+                    shrink
+                    max_depth
+                    max_size
                 );
 
-                local $conf->{utf8} = !$conf->{utf8};    # it means the opposite
+                local $conf->{utf8} = !$conf->{utf8};  # it means the opposite
 
                 my $obj = $handler->new;
                 for my $mutator (@params) {
@@ -168,17 +162,21 @@ BEGIN {
             },
         },
         json_syck => {
-            encoder       => 'Dump',
-            decoder       => 'Load',
-            get_true      => sub { croak "JSON::Syck does not support special boolean values"; },
-            get_false     => sub { croak "JSON::Syck does not support special boolean values"; },
+            encoder  => 'Dump',
+            decoder  => 'Load',
+            get_true => sub {
+                croak "JSON::Syck does not support special boolean values";
+            },
+            get_false => sub {
+                croak "JSON::Syck does not support special boolean values";
+            },
             create_object => sub {
                 my ( $self, $conf ) = @_;
                 croak "JSON::Syck does not support utf8" if $conf->{utf8};
                 $self->[ENCODER] = sub { Dump(@_) };
                 $self->[DECODER] = sub { Load(@_) };
                 $self->[HANDLER] = 'JSON::Syck';
-              }
+                }
         },
     );
 }
@@ -193,16 +191,12 @@ sub _make_key {
     return $key;
 }
 
-sub import {
-    my $class = shift;
+my @default    = qw(XS JSON DWIW);
+my @deprecated = qw(Syck);
+
+sub _try_loading {
     my @order = @_;
-
     ( $handler, $encoder, $decoder ) = ();
-
-    @order = split /\s/, $ENV{JSON_ANY_ORDER}
-      if !@order and $ENV{JSON_ANY_ORDER};
-    @order = qw(XS JSON DWIW) unless @order;
-
     foreach my $testmod (@order) {
         $testmod = "JSON::$testmod" unless $testmod eq "JSON";
         eval "require $testmod";
@@ -214,8 +208,42 @@ sub import {
             last;
         }
     }
+    return ( $handler, $encoder, $decoder );
+}
 
-    croak "Couldn't find a JSON Package."   unless $handler;
+sub import {
+    my $class = shift;
+    my @order = @_;
+
+    ( $handler, $encoder, $decoder ) = ();
+
+    @order = split /\s/, $ENV{JSON_ANY_ORDER}
+        if !@order and $ENV{JSON_ANY_ORDER};
+
+    if (@order) {
+        ( $handler, $encoder, $decoder ) = _try_loading(@order);
+        if ( $handler && grep { "JSON::$_" eq $handler } @deprecated ) {
+            my $last = pop @default;
+            carp "Found deprecated package $handler. Please upgrade to ",
+                join ', ' => @default, "or $last";
+        }
+    }
+    else {
+        ( $handler, $encoder, $decoder ) = _try_loading(@default);
+        unless ($handler) {
+            ( $handler, $encoder, $decoder ) = _try_loading(@deprecated);
+            if ($handler) {
+                my $last = pop @default;
+                carp "Found deprecated package $handler. Please upgrade to ",
+                    join ', ' => @default, "or $last";
+            }
+        }
+    }
+    unless ($handler) {
+        my $last = pop @default;
+        croak "Couldn't find a JSON package. Need ", join ', ' => @default,
+            "or $last";
+    }
     croak "Couldn't find a decoder method." unless $decoder;
     croak "Couldn't find a encoder method." unless $encoder;
 }
@@ -266,16 +294,20 @@ You may change the order by specifying it on the C<use JSON::Any> line:
 
 	use JSON::Any qw(DWIW XS JSON);
 
-Specifying an order that is missing one of the modules will prevent that module from being used:
+Specifying an order that is missing one of the modules will prevent that
+module from being used:
 
 	use JSON::Any qw(DWIW XS JSON);
 
-This will check in that order, and will never attempt to load JSON::Syck. This can also be set via
-the $ENV{JSON_ANY_ORDER} environment variable.
+This will check in that order, and will never attempt to load JSON::Syck. This
+can also be set via the $ENV{JSON_ANY_ORDER} environment variable.
 
-JSON::Syck has been deprecated by it's author, but in the attempt to still stay relevant as a "Compat Layer" 
-JSON::Any still supports it. This support however has been made optional, and disabled by default. If you would like
-to use JSON::Any with version 1.19 and above you'll need to explicitly add it to the import list.
+JSON::Syck has been deprecated by it's author, but in the attempt to still
+stay relevant as a "Compat Layer" JSON::Any still supports it. This support
+however has been made optional starting with JSON::Any 1.19. In deference to a
+bug request starting with JSON 1.20 JSON::Syck and other deprecated modules
+will still be installed, but only as a last resort and will now include a
+warning. 
 
     use JSON::Any qw(Syck XS JSON); 
     
@@ -288,7 +320,8 @@ WARNING: If you call JSON::Any with an empty list
 
     use JSON::Any ();
     
-It will skip the JSON package detection routines and will die loudly that it couldn't find a package.
+It will skip the JSON package detection routines and will die loudly that it
+couldn't find a package.
 
 =head1 FUNCTIONS
 
@@ -296,10 +329,10 @@ It will skip the JSON package detection routines and will die loudly that it cou
 
 =item C<new>
 
-Will take any of the parameters for the underlying system and pass them through. 
-However these values don't map between JSON modules, so, from a portability
-standpoint this is really only helpful for those paramters that happen
-to have the same name. This will be addressed in a future release.
+Will take any of the parameters for the underlying system and pass them
+through. However these values don't map between JSON modules, so, from a
+portability standpoint this is really only helpful for those paramters that
+happen to have the same name. This will be addressed in a future release.
 
 The one parameter that is universally supported (to the extent that is
 supported by the underlying JSON modules) is C<utf8>. When this parameter is
@@ -307,13 +340,13 @@ enabled all resulting JSON will be marked as unicode, and all unicode strings
 in the input data structure will be preserved as such.
 
 Also note that the C<allow_blessed> parameter is recognised by all the modules
-that throw exceptions when a blessed reference is given them meaning that setting
-it to true works for all modules. Of course, that means that you cannot set it
-to false intentionally in order to always get such exceptions.
+that throw exceptions when a blessed reference is given them meaning that
+setting it to true works for all modules. Of course, that means that you
+cannot set it to false intentionally in order to always get such exceptions.
 
-The actual output will vary, for example L<JSON> will encode and decode unicode
-chars (the resulting JSON is not unicode) wheras L<JSON::XS> will emit unicode
-JSON.
+The actual output will vary, for example L<JSON> will encode and decode
+unicode chars (the resulting JSON is not unicode) wheras L<JSON::XS> will emit
+unicode JSON.
 
 =back
 
@@ -327,7 +360,7 @@ sub new {
         my @config = @_;
         if ( $ENV{JSON_ANY_CONFIG} ) {
             push @config, map { split /=/, $_ } split /,\s*/,
-              $ENV{JSON_ANY_CONFIG};
+                $ENV{JSON_ANY_CONFIG};
         }
         $creator->( $self, my $conf = {@config} );
         $self->[UTF8] = $conf->{utf8};
@@ -423,7 +456,8 @@ sub objToJson {
     if ( ref $self ) {
         my $method;
         unless ( ref $self->[ENCODER] ) {
-            croak "No $handler Object created!" unless exists $self->[HANDLER];
+            croak "No $handler Object created!"
+                unless exists $self->[HANDLER];
             $method = $self->[HANDLER]->can( $self->[ENCODER] );
             croak "$handler can't execute $self->[ENCODER]" unless $method;
         }
@@ -437,9 +471,9 @@ sub objToJson {
     }
 
     utf8::decode($json)
-      if ( ref $self ? $self->[UTF8] : $UTF8 )
-      and !utf8::is_utf8($json)
-      and utf8::valid($json);
+        if ( ref $self ? $self->[UTF8] : $UTF8 )
+        and !utf8::is_utf8($json)
+        and utf8::valid($json);
     return $json;
 }
 
@@ -481,7 +515,8 @@ sub jsonToObj {
     if ( ref $self ) {
         my $method;
         unless ( ref $self->[DECODER] ) {
-            croak "No $handler Object created!" unless exists $self->[HANDLER];
+            croak "No $handler Object created!"
+                unless exists $self->[HANDLER];
             $method = $self->[HANDLER]->can( $self->[DECODER] );
             croak "$handler can't execute $self->[DECODER]" unless $method;
         }
@@ -512,11 +547,16 @@ underlying JSON module.
 *Load      = \&jsonToObj;
 *decode    = \&jsonToObj;
 
+1;
+__END__
+
+
 =head1 AUTHOR
 
 Chris Thompson, C<< <cthom at cpan.org> >>
 Chris Prather, C<< <chris at prather.org> >>
 Robin Berjon, C<< robin at berjon.com >>
+Marc Mims C<<marc@questright.com>>
 
 =head1 BUGS
 
@@ -547,5 +587,3 @@ This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
 =cut
-
-1;    # End of JSON::Any

@@ -3,9 +3,12 @@ abstract: 'Wrapper Class for the various JSON classes.'
 author:
   - 'Chris Thompson, C<< <cthom at cpan.org> >>'
 build_requires:
-  Test::More: 0
+  ExtUtils::MakeMaker: 6.42
+  Test::More: 0.42
+configure_requires:
+  ExtUtils::MakeMaker: 6.42
 distribution_type: module
-generated_by: 'Module::Install version 0.77'
+generated_by: 'Module::Install version 0.91'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -13,11 +16,10 @@ meta-spec:
 name: JSON-Any
 no_index:
   directory:
-    - ex
     - inc
     - t
 requires:
   Carp: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 1.19
+version: 1.20
