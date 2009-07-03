@@ -25,3 +25,4 @@ t/04-ENV.t
 t/05-JSON-Syck.t
 t/10_unicode.t
 t/11-string-escape.t
+t/12-boolean.t

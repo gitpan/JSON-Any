@@ -10,11 +10,11 @@ JSON::Any - Wrapper Class for the various JSON classes.
 
 =head1 VERSION
 
-Version 1.20
+Version 1.21
 
 =cut
 
-our $VERSION = '1.20';
+our $VERSION = '1.21';
 
 our $UTF8;
 
@@ -32,8 +32,6 @@ BEGIN {
             get_true      => sub { return JSON::true(); },
             get_false     => sub { return JSON::false(); },
             create_object => sub {
-                require utf8;
-                utf8->import();
                 JSON->import( '-support_by_pp', '-no_export' );
                 my ( $self, $conf ) = @_;
                 my @params = qw(
@@ -123,11 +121,9 @@ BEGIN {
         json_xs_2 => {
             encoder       => 'encode_json',
             decoder       => 'decode_json',
-            get_true      => sub { return \1; },
-            get_false     => sub { return \0; },
+            get_true      => sub { return JSON::XS::true(); },
+            get_false     => sub { return JSON::XS::false(); },
             create_object => sub {
-                require utf8;
-                utf8->import();
                 my ( $self, $conf ) = @_;
 
                 my @params = qw(
@@ -511,6 +507,11 @@ sub jsonToObj {
     my $self = shift;
     my $obj  = shift;
     croak 'must provide json to convert' unless defined $obj;
+
+    # some handlers can't parse single booleans (I'm looking at you DWIW)
+    if ( $obj =~ /^(true|false)$/ ) {
+        return $self->$1;
+    }
 
     if ( ref $self ) {
         my $method;
