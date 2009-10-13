@@ -45,7 +45,7 @@ ok(
         pretty       => 1
     )
 );
-is( $json->encode( chr 0x10402 ), '"\ud801\udc02"' );
+like( $json->encode( chr 0x10402 ), qr/"\\ud801\\udc02"\n?/ );
 ok( $json = JSON::Any->new( allow_nonref => 1, utf8 => 1 ) );
 
 is( $json->encode("Ã¼"), qq["\xc3\xbc\"] );
