@@ -9,7 +9,7 @@ all_from 'lib/JSON/Any.pm';
 requires 'Carp' => '0';
 
 sub has_json () {
-    @order = qw(XS JSON DWIW);
+    our @order = qw(XS JSON DWIW);
     foreach my $testmod (@order) {
         $testmod = "JSON::$testmod" unless $testmod eq "JSON";
         eval "require $testmod";
@@ -55,5 +55,4 @@ if ($Module::Install::AUTHOR) {
 
 auto_set_repository;
 auto_manifest;
-auto_install;
 WriteAll;
