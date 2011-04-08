@@ -20,7 +20,10 @@ no_index:
     - t
 requires:
   Carp: 0
+  JSON: 2.02
+  JSON::Syck: 0
+  JSON::XS: 2.232
 resources:
   license: http://dev.perl.org/licenses/
   repository: git://github.com/perigrin/json-any.git
-version: 1.26
+version: 1.27
