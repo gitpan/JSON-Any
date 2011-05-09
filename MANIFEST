@@ -27,4 +27,4 @@ t/05-JSON-Syck.t
 t/10_unicode.t
 t/11-string-escape.t
 t/12-boolean.t
-t/13-podspell.t
+xt/01-podspell.t
