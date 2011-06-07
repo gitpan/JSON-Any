@@ -6,9 +6,10 @@ build_requires:
   ExtUtils::MakeMaker: 6.42
   Test::More: 0.42
 configure_requires:
-  ExtUtils::MakeMaker: 6.42
+  ExtUtils::MakeMaker: 0
 distribution_type: module
-generated_by: 'Module::Install version 1.01'
+dynamic_config: 0
+generated_by: 'ExtUtils::MakeMaker version 6.57_05'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -16,15 +17,11 @@ meta-spec:
 name: JSON-Any
 no_index:
   directory:
-    - inc
     - t
-    - xt
+    - inc
 requires:
   Carp: 0
   JSON: 2.02
   JSON::Syck: 0
   JSON::XS: 2.3
-resources:
-  license: http://dev.perl.org/licenses/
-  repository: git://github.com/perigrin/json-any.git
 version: 1.29
