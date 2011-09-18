@@ -1,20 +1,13 @@
 package JSON::Any;
+{
+  $JSON::Any::VERSION = '1.30'; # TRIAL
+}
 
 use warnings;
 use strict;
 use Carp qw(croak carp);
 
-=head1 NAME
-
-JSON::Any - Wrapper Class for the various JSON classes.
-
-=head1 VERSION
-
-Version 1.29
-
-=cut
-
-our $VERSION = '1.29';
+# ABSTRACT: Wrapper Class for the various JSON classes.
 
 our $UTF8;
 
@@ -279,6 +272,132 @@ sub import {
     croak "Couldn't find a encoder method." unless $encoder;
 }
 
+
+sub new {
+    my $class = shift;
+    my $self  = bless [], $class;
+    my $key   = _make_key($handler);
+    if ( my $creator = $conf{$key}->{create_object} ) {
+        my @config = @_;
+        if ( $ENV{JSON_ANY_CONFIG} ) {
+            push @config, map { split /=/, $_ } split /,\s*/,
+                $ENV{JSON_ANY_CONFIG};
+        }
+        $creator->( $self, my $conf = {@config} );
+        $self->[UTF8] = $conf->{utf8};
+    }
+    return $self;
+}
+
+
+sub handlerType {
+    my $class = shift;
+    $handler;
+}
+
+
+sub handler {
+    my $self = shift;
+    if ( ref $self ) {
+        return $self->[HANDLER];
+    }
+    return $handler;
+}
+
+
+sub true {
+    my $key = _make_key($handler);
+    return $conf{$key}->{get_true}->();
+}
+
+
+sub false {
+    my $key = _make_key($handler);
+    return $conf{$key}->{get_false}->();
+}
+
+
+sub objToJson {
+    my $self = shift;
+    my $obj  = shift;
+    croak 'must provide object to convert' unless defined $obj;
+
+    my $json;
+
+    if ( ref $self ) {
+        my $method;
+        unless ( ref $self->[ENCODER] ) {
+            croak "No $handler Object created!"
+                unless exists $self->[HANDLER];
+            $method = $self->[HANDLER]->can( $self->[ENCODER] );
+            croak "$handler can't execute $self->[ENCODER]" unless $method;
+        }
+        else {
+            $method = $self->[ENCODER];
+        }
+        $json = $self->[HANDLER]->$method($obj);
+    }
+    else {
+        $json = $handler->can($encoder)->($obj);
+    }
+
+    utf8::decode($json)
+        if ( ref $self ? $self->[UTF8] : $UTF8 )
+        and !utf8::is_utf8($json)
+        and utf8::valid($json);
+    return $json;
+}
+
+
+*to_json = \&objToJson;
+*Dump    = \&objToJson;
+*encode  = \&objToJson;
+
+
+sub jsonToObj {
+    my $self = shift;
+    my $obj  = shift;
+    croak 'must provide json to convert' unless defined $obj;
+
+    # some handlers can't parse single booleans (I'm looking at you DWIW)
+    if ( $obj =~ /^(true|false)$/ ) {
+        return $self->$1;
+    }
+
+    if ( ref $self ) {
+        my $method;
+        unless ( ref $self->[DECODER] ) {
+            croak "No $handler Object created!"
+                unless exists $self->[HANDLER];
+            $method = $self->[HANDLER]->can( $self->[DECODER] );
+            croak "$handler can't execute $self->[DECODER]" unless $method;
+        }
+        else {
+            $method = $self->[DECODER];
+        }
+        return $self->[HANDLER]->$method($obj);
+    }
+    $handler->can($decoder)->($obj);
+}
+
+
+*from_json = \&jsonToObj;
+*Load      = \&jsonToObj;
+*decode    = \&jsonToObj;
+
+1;
+
+
+=pod
+
+=head1 NAME
+
+JSON::Any - Wrapper Class for the various JSON classes.
+
+=head1 VERSION
+
+version 1.30
+
 =head1 SYNOPSIS
 
 This module tries to provide a coherent API to bring together the various JSON
@@ -341,16 +460,15 @@ will still be installed, but only as a last resort and will now include a
 warning. 
 
     use JSON::Any qw(Syck XS JSON); 
-    
+
 or 
 
     $ENV{JSON_ANY_ORDER} = 'Syck XS JSON';
 
-
 WARNING: If you call JSON::Any with an empty list
 
     use JSON::Any ();
-    
+
 It will skip the JSON package detection routines and will die loudly that it
 couldn't find a package.
 
@@ -390,24 +508,6 @@ unicode JSON.
 
 =back
 
-=cut
-
-sub new {
-    my $class = shift;
-    my $self  = bless [], $class;
-    my $key   = _make_key($handler);
-    if ( my $creator = $conf{$key}->{create_object} ) {
-        my @config = @_;
-        if ( $ENV{JSON_ANY_CONFIG} ) {
-            push @config, map { split /=/, $_ } split /,\s*/,
-                $ENV{JSON_ANY_CONFIG};
-        }
-        $creator->( $self, my $conf = {@config} );
-        $self->[UTF8] = $conf->{utf8};
-    }
-    return $self;
-}
-
 =over
 
 =item C<handlerType>
@@ -415,13 +515,6 @@ sub new {
 Takes no arguments, returns a string indicating which JSON Module is in use.
 
 =back
-
-=cut
-
-sub handlerType {
-    my $class = shift;
-    $handler;
-}
 
 =over
 
@@ -433,16 +526,6 @@ class methods.
 
 =back
 
-=cut
-
-sub handler {
-    my $self = shift;
-    if ( ref $self ) {
-        return $self->[HANDLER];
-    }
-    return $handler;
-}
-
 =over
 
 =item C<true>
@@ -451,13 +534,6 @@ Takes no arguments, returns the special value that the internal JSON
 object uses to map to a JSON C<true> boolean.
 
 =back
-
-=cut
-
-sub true {
-    my $key = _make_key($handler);
-    return $conf{$key}->{get_true}->();
-}
 
 =over
 
@@ -468,13 +544,6 @@ object uses to map to a JSON C<false> boolean.
 
 =back
 
-=cut
-
-sub false {
-    my $key = _make_key($handler);
-    return $conf{$key}->{get_false}->();
-}
-
 =over
 
 =item C<objToJson>
@@ -483,39 +552,6 @@ Takes a single argument, a hashref to be converted into JSON.
 It returns the JSON text in a scalar.
 
 =back
-
-=cut
-
-sub objToJson {
-    my $self = shift;
-    my $obj  = shift;
-    croak 'must provide object to convert' unless defined $obj;
-
-    my $json;
-
-    if ( ref $self ) {
-        my $method;
-        unless ( ref $self->[ENCODER] ) {
-            croak "No $handler Object created!"
-                unless exists $self->[HANDLER];
-            $method = $self->[HANDLER]->can( $self->[ENCODER] );
-            croak "$handler can't execute $self->[ENCODER]" unless $method;
-        }
-        else {
-            $method = $self->[ENCODER];
-        }
-        $json = $self->[HANDLER]->$method($obj);
-    }
-    else {
-        $json = $handler->can($encoder)->($obj);
-    }
-
-    utf8::decode($json)
-        if ( ref $self ? $self->[UTF8] : $UTF8 )
-        and !utf8::is_utf8($json)
-        and utf8::valid($json);
-    return $json;
-}
 
 =over
 
@@ -530,12 +566,6 @@ underlying JSON module.
 
 =back
 
-=cut
-
-*to_json = \&objToJson;
-*Dump    = \&objToJson;
-*encode  = \&objToJson;
-
 =over
 
 =item C<jsonToObj>
@@ -544,34 +574,6 @@ Takes a single argument, a string of JSON text to be converted
 back into a hashref.
 
 =back
-
-=cut
-
-sub jsonToObj {
-    my $self = shift;
-    my $obj  = shift;
-    croak 'must provide json to convert' unless defined $obj;
-
-    # some handlers can't parse single booleans (I'm looking at you DWIW)
-    if ( $obj =~ /^(true|false)$/ ) {
-        return $self->$1;
-    }
-
-    if ( ref $self ) {
-        my $method;
-        unless ( ref $self->[DECODER] ) {
-            croak "No $handler Object created!"
-                unless exists $self->[HANDLER];
-            $method = $self->[HANDLER]->can( $self->[DECODER] );
-            croak "$handler can't execute $self->[DECODER]" unless $method;
-        }
-        else {
-            $method = $self->[DECODER];
-        }
-        return $self->[HANDLER]->$method($obj);
-    }
-    $handler->can($decoder)->($obj);
-}
 
 =over
 
@@ -586,36 +588,6 @@ underlying JSON module.
 
 =back
 
-=cut
-
-*from_json = \&jsonToObj;
-*Load      = \&jsonToObj;
-*decode    = \&jsonToObj;
-
-1;
-__END__
-
-
-=head1 AUTHORS
-
-Chris Thompson C<< cthom at cpan.org >>
-
-Chris Prather C<< chris at prather.org >>
-
-Robin Berjon C<< robin at berjon.com >>
-
-Marc Mims C<< marc at questright.com >>
-
-Tomas Doran C<< bobtfish at bobtfish.net >>
-
-=head1 BUGS
-
-Please report any bugs or feature requests to
-C<bug-json-any at rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=JSON-Any>.
-I will be notified, and then you'll automatically be notified of progress on
-your bug as I make changes.
-
 =head1 ACKNOWLEDGEMENTS
 
 This module came about after discussions on irc.perl.org about the fact 
@@ -629,11 +601,42 @@ versions previous to 2.01
 
 San Dimas High School Football Rules!
 
-=head1 COPYRIGHT & LICENSE
+=head1 AUTHORS
 
-Copyright 2007-2009 Chris Thompson, some rights reserved.
+=over 4
 
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+=item *
+
+Chris Thompson <cthom@cpan.org>
+
+=item *
+
+Chris Prather <chris@prather.org>
+
+=item *
+
+Robin Berjon <robin@berjon.com>
+
+=item *
+
+Marc Mims <marc@questright.com>
+
+=item *
+
+Tomas Doran <bobtfish@bobtfish.net>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2011 by Chris Thompson.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
+
+
+__END__
+
+
