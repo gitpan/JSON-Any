@@ -10,7 +10,7 @@ build_requires: {}
 configure_requires:
   ExtUtils::MakeMaker: 6.30
 dynamic_config: 1
-generated_by: 'Dist::Zilla version 4.300000, CPAN::Meta::Converter version 2.112150'
+generated_by: 'Dist::Zilla version 4.300034, CPAN::Meta::Converter version 2.131560'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -18,4 +18,15 @@ meta-spec:
 name: JSON-Any
 requires:
   perl: 5.008
+resources:
+  homepage: https://github.com/perigrin/json-any
+  repository: https://github.com/perigrin/json-any.git
 version: 1.30
+x_contributors:
+  - 'Chris Prather <cprather@hdpublishing.com>'
+  - 'Justin Hunter <justin.d.hunter@gmail.com>'
+  - 'Todd Rinaldo <toddr@cpan.org>'
+  - 'marc.mims <marc.mims@daca5766-e62f-0410-9ddd-e5e43faa6270>'
+  - 'nothingmuch@woobling.org <nothingmuch@woobling.org@daca5766-e62f-0410-9ddd-e5e43faa6270>'
+  - 'perigrin <perigrin@daca5766-e62f-0410-9ddd-e5e43faa6270>'
+  - 'robin.berjon@gmail.com <robin.berjon@gmail.com@daca5766-e62f-0410-9ddd-e5e43faa6270>'

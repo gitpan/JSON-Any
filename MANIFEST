@@ -2,6 +2,7 @@ Changes
 LICENSE
 MANIFEST
 MANIFEST.SKIP
+META.json
 META.yml
 Makefile.PL
 README
@@ -14,9 +15,12 @@ t/02-JSON-XS.t
 t/03-JSON-DWIW.t
 t/04-ENV.t
 t/05-JSON-Syck.t
+t/06-JSON-PP.t
+t/07-CPanel-JSON-XS.t
 t/10_unicode.t
 t/11-string-escape.t
 t/12-boolean.t
 t/release-pod-coverage.t
 t/release-pod-syntax.t
+weaver.ini
 xt/01-podspell.t

@@ -1,6 +1,9 @@
 package JSON::Any;
 {
-  $JSON::Any::VERSION = '1.30'; # TRIAL
+  $JSON::Any::VERSION = '1.30';
+}
+{
+  $JSON::Any::VERSION = '1.30';
 }
 
 use warnings;
@@ -28,21 +31,22 @@ BEGIN {
                 require JSON;
                 my ( $self, $conf ) = @_;
                 my @params = qw(
-                    autoconv
-                    skipinvalid
-                    execcoderef
-                    pretty
-                    indent
-                    delimiter
-                    keysort
-                    convblessed
-                    selfconvert
-                    singlequote
-                    quoteapos
-                    unmapping
-                    barekey
+                  autoconv
+                  skipinvalid
+                  execcoderef
+                  pretty
+                  indent
+                  delimiter
+                  keysort
+                  convblessed
+                  selfconvert
+                  singlequote
+                  quoteapos
+                  unmapping
+                  barekey
                 );
-                my $obj = $handler->new( utf8 => $conf->{utf8} ); ## constructor only
+                my $obj =
+                  $handler->new( utf8 => $conf->{utf8} );    ## constructor only
 
                 for my $mutator (@params) {
                     next unless exists $conf->{$mutator};
@@ -63,31 +67,31 @@ BEGIN {
                 JSON->import( '-support_by_pp', '-no_export' );
                 my ( $self, $conf ) = @_;
                 my @params = qw(
-                    ascii
-                    latin1
-                    utf8
-                    pretty
-                    indent
-                    space_before
-                    space_after
-                    relaxed
-                    canonical
-                    allow_nonref
-                    allow_blessed
-                    convert_blessed
-                    filter_json_object
-                    shrink
-                    max_depth
-                    max_size
-                    loose
-                    allow_bignum
-                    allow_barekey
-                    allow_singlequote
-                    escape_slash
-                    indent_length
-                    sort_by
+                  ascii
+                  latin1
+                  utf8
+                  pretty
+                  indent
+                  space_before
+                  space_after
+                  relaxed
+                  canonical
+                  allow_nonref
+                  allow_blessed
+                  convert_blessed
+                  filter_json_object
+                  shrink
+                  max_depth
+                  max_size
+                  loose
+                  allow_bignum
+                  allow_barekey
+                  allow_singlequote
+                  escape_slash
+                  indent_length
+                  sort_by
                 );
-                local $conf->{utf8} = !$conf->{utf8};  # it means the opposite
+                local $conf->{utf8} = !$conf->{utf8};    # it means the opposite
                 my $obj = $handler->new;
 
                 for my $mutator (@params) {
@@ -111,8 +115,8 @@ BEGIN {
                 croak "JSON::DWIW does not support utf8" if $conf->{utf8};
                 $self->[ENCODER] = 'to_json';
                 $self->[DECODER] = 'from_json';
-                $self->[HANDLER]
-                    = $handler->new( { map { $_ => $conf->{$_} } @params } );
+                $self->[HANDLER] =
+                  $handler->new( { map { $_ => $conf->{$_} } @params } );
             },
         },
         json_xs_1 => {
@@ -124,16 +128,16 @@ BEGIN {
                 my ( $self, $conf ) = @_;
 
                 my @params = qw(
-                    ascii
-                    utf8
-                    pretty
-                    indent
-                    space_before
-                    space_after
-                    canonical
-                    allow_nonref
-                    shrink
-                    max_depth
+                  ascii
+                  utf8
+                  pretty
+                  indent
+                  space_before
+                  space_after
+                  canonical
+                  allow_nonref
+                  shrink
+                  max_depth
                 );
 
                 my $obj = $handler->new;
@@ -155,25 +159,25 @@ BEGIN {
                 my ( $self, $conf ) = @_;
 
                 my @params = qw(
-                    ascii
-                    latin1
-                    utf8
-                    pretty
-                    indent
-                    space_before
-                    space_after
-                    relaxed
-                    canonical
-                    allow_nonref
-                    allow_blessed
-                    convert_blessed
-                    filter_json_object
-                    shrink
-                    max_depth
-                    max_size
+                  ascii
+                  latin1
+                  utf8
+                  pretty
+                  indent
+                  space_before
+                  space_after
+                  relaxed
+                  canonical
+                  allow_nonref
+                  allow_blessed
+                  convert_blessed
+                  filter_json_object
+                  shrink
+                  max_depth
+                  max_size
                 );
 
-                local $conf->{utf8} = !$conf->{utf8};  # it means the opposite
+                local $conf->{utf8} = !$conf->{utf8};    # it means the opposite
 
                 my $obj = $handler->new;
                 for my $mutator (@params) {
@@ -200,9 +204,19 @@ BEGIN {
                 $self->[ENCODER] = sub { Dump(@_) };
                 $self->[DECODER] = sub { Load(@_) };
                 $self->[HANDLER] = 'JSON::Syck';
-                }
+              }
         },
     );
+
+    # JSON::PP has the same API as JSON.pm v2
+    $conf{json_pp} = { %{ $conf{json_2} } };
+    $conf{json_pp}{get_true}  = sub { return JSON::PP::true(); };
+    $conf{json_pp}{get_false} = sub { return JSON::PP::false(); };
+
+    # Cpanel::JSON::XS is a fork of JSON::XS (currently)
+    $conf{cpanel_json_xs} = { %{ $conf{json_xs_2} } };
+    $conf{cpanel_json_xs}{get_true}  = sub { return Cpanel::JSON::XS::true(); };
+    $conf{cpanel_json_xs}{get_false} = sub { return Cpanel::JSON::XS::false(); };
 }
 
 sub _make_key {
@@ -215,14 +229,21 @@ sub _make_key {
     return $key;
 }
 
-my @default    = qw(XS JSON DWIW);
+my @default    = qw(CPANEL XS PP JSON DWIW);
 my @deprecated = qw(Syck);
+
+sub _module_name {
+    my ($testmod) = @_;
+    return 'Cpanel::JSON::XS' if $testmod eq 'CPANEL';
+    return 'JSON'             if $testmod eq 'JSON';
+    return "JSON::$testmod";
+}
 
 sub _try_loading {
     my @order = @_;
     ( $handler, $encoder, $decoder ) = ();
-    foreach my $testmod (@order) {
-        $testmod = "JSON::$testmod" unless $testmod eq "JSON";
+    foreach my $mod (@order) {
+        my $testmod = _module_name($mod);
         eval "require $testmod";
         unless ($@) {
             $handler = $testmod;
@@ -242,14 +263,15 @@ sub import {
     ( $handler, $encoder, $decoder ) = ();
 
     @order = split /\s/, $ENV{JSON_ANY_ORDER}
-        if !@order and $ENV{JSON_ANY_ORDER};
+      if !@order and $ENV{JSON_ANY_ORDER};
 
     if (@order) {
         ( $handler, $encoder, $decoder ) = _try_loading(@order);
         if ( $handler && grep { "JSON::$_" eq $handler } @deprecated ) {
             my $last = pop @default;
             carp "Found deprecated package $handler. Please upgrade to ",
-                join ', ' => @default, "or $last";
+              join ', ' => @default,
+              "or $last";
         }
     }
     else {
@@ -259,14 +281,15 @@ sub import {
             if ($handler) {
                 my $last = pop @default;
                 carp "Found deprecated package $handler. Please upgrade to ",
-                    join ', ' => @default, "or $last";
+                  join ', ' => @default,
+                  "or $last";
             }
         }
     }
     unless ($handler) {
         my $last = pop @default;
         croak "Couldn't find a JSON package. Need ", join ', ' => @default,
-            "or $last";
+          "or $last";
     }
     croak "Couldn't find a decoder method." unless $decoder;
     croak "Couldn't find a encoder method." unless $encoder;
@@ -281,7 +304,7 @@ sub new {
         my @config = @_;
         if ( $ENV{JSON_ANY_CONFIG} ) {
             push @config, map { split /=/, $_ } split /,\s*/,
-                $ENV{JSON_ANY_CONFIG};
+              $ENV{JSON_ANY_CONFIG};
         }
         $creator->( $self, my $conf = {@config} );
         $self->[UTF8] = $conf->{utf8};
@@ -328,7 +351,7 @@ sub objToJson {
         my $method;
         unless ( ref $self->[ENCODER] ) {
             croak "No $handler Object created!"
-                unless exists $self->[HANDLER];
+              unless exists $self->[HANDLER];
             $method = $self->[HANDLER]->can( $self->[ENCODER] );
             croak "$handler can't execute $self->[ENCODER]" unless $method;
         }
@@ -342,9 +365,9 @@ sub objToJson {
     }
 
     utf8::decode($json)
-        if ( ref $self ? $self->[UTF8] : $UTF8 )
-        and !utf8::is_utf8($json)
-        and utf8::valid($json);
+      if ( ref $self ? $self->[UTF8] : $UTF8 )
+      and !utf8::is_utf8($json)
+      and utf8::valid($json);
     return $json;
 }
 
@@ -368,7 +391,7 @@ sub jsonToObj {
         my $method;
         unless ( ref $self->[DECODER] ) {
             croak "No $handler Object created!"
-                unless exists $self->[HANDLER];
+              unless exists $self->[HANDLER];
             $method = $self->[HANDLER]->can( $self->[DECODER] );
             croak "$handler can't execute $self->[DECODER]" unless $method;
         }
@@ -387,6 +410,7 @@ sub jsonToObj {
 
 1;
 
+__END__
 
 =pod
 
@@ -434,7 +458,9 @@ or without creating an object:
 On load, JSON::Any will find a valid JSON module in your @INC by looking 
 for them in this order:
 
+    Cpanel::JSON::XS
 	JSON::XS 
+    JSON::PP
 	JSON 
 	JSON::DWIW 
 
@@ -442,15 +468,16 @@ And loading the first one it finds.
 
 You may change the order by specifying it on the C<use JSON::Any> line:
 
-	use JSON::Any qw(DWIW XS JSON);
+	use JSON::Any qw(DWIW XS CPANEL JSON PP);
 
-Specifying an order that is missing one of the modules will prevent that
-module from being used:
+Specifying an order that is missing modules will prevent those module from 
+being used:
 
-	use JSON::Any qw(DWIW XS JSON);
+	use JSON::Any qw(CPANEL PP); # same as JSON::MaybeXS
 
-This will check in that order, and will never attempt to load JSON::Syck. This
-can also be set via the $ENV{JSON_ANY_ORDER} environment variable.
+This will check in that order, and will never attempt to load JSON::XS, 
+JSON.pm, or JSON::DWIW. This can also be set via the $ENV{JSON_ANY_ORDER} 
+environment variable.
 
 JSON::Syck has been deprecated by it's author, but in the attempt to still
 stay relevant as a "Compat Layer" JSON::Any still supports it. This support
@@ -471,6 +498,14 @@ WARNING: If you call JSON::Any with an empty list
 
 It will skip the JSON package detection routines and will die loudly that it
 couldn't find a package.
+
+=head1 NAME 
+
+JSON::Any
+
+=head1 VERSION
+
+version 1.30
 
 =head1 DEPRECATION
 
@@ -629,14 +664,43 @@ Tomas Doran <bobtfish@bobtfish.net>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2011 by Chris Thompson.
+This software is copyright (c) 2013 by Chris Thompson.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
+=head1 CONTRIBUTORS
+
+=over 4
+
+=item *
+
+Chris Prather <cprather@hdpublishing.com>
+
+=item *
+
+Justin Hunter <justin.d.hunter@gmail.com>
+
+=item *
+
+Todd Rinaldo <toddr@cpan.org>
+
+=item *
+
+marc.mims <marc.mims@daca5766-e62f-0410-9ddd-e5e43faa6270>
+
+=item *
+
+nothingmuch@woobling.org <nothingmuch@woobling.org@daca5766-e62f-0410-9ddd-e5e43faa6270>
+
+=item *
+
+perigrin <perigrin@daca5766-e62f-0410-9ddd-e5e43faa6270>
+
+=item *
+
+robin.berjon@gmail.com <robin.berjon@gmail.com@daca5766-e62f-0410-9ddd-e5e43faa6270>
+
+=back
+
 =cut
-
-
-__END__
-
-
