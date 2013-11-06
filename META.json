@@ -7,8 +7,8 @@
       "Marc Mims <marc@questright.com>",
       "Tomas Doran <bobtfish@bobtfish.net>"
    ],
-   "dynamic_config" : "1",
-   "generated_by" : "Dist::Zilla version 4.300034, CPAN::Meta::Converter version 2.131560",
+   "dynamic_config" : 1,
+   "generated_by" : "Dist::Zilla version 4.300039, CPAN::Meta::Converter version 2.132830",
    "license" : [
       "perl_5"
    ],
@@ -34,6 +34,11 @@
          "requires" : {
             "perl" : "5.008"
          }
+      },
+      "test" : {
+         "requires" : {
+            "Test::Without::Module" : "0.17"
+         }
       }
    },
    "release_status" : "stable",
@@ -45,9 +50,10 @@
          "web" : "https://github.com/perigrin/json-any"
       }
    },
-   "version" : "1.30",
+   "version" : "1.31",
    "x_contributors" : [
       "Chris Prather <cprather@hdpublishing.com>",
+      "Dagfinn Ilmari Manns\u00e5ker <ilmari@ilmari.org>",
       "Justin Hunter <justin.d.hunter@gmail.com>",
       "Todd Rinaldo <toddr@cpan.org>",
       "marc.mims <marc.mims@daca5766-e62f-0410-9ddd-e5e43faa6270>",

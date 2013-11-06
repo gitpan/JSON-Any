@@ -1,9 +1,9 @@
 package JSON::Any;
 {
-  $JSON::Any::VERSION = '1.30';
+  $JSON::Any::VERSION = '1.31';
 }
 {
-  $JSON::Any::VERSION = '1.30';
+  $JSON::Any::VERSION = '1.31';
 }
 
 use warnings;
@@ -217,6 +217,11 @@ BEGIN {
     $conf{cpanel_json_xs} = { %{ $conf{json_xs_2} } };
     $conf{cpanel_json_xs}{get_true}  = sub { return Cpanel::JSON::XS::true(); };
     $conf{cpanel_json_xs}{get_false} = sub { return Cpanel::JSON::XS::false(); };
+
+    # JSON::XS 3 is almost the same as JSON::XS 2
+    $conf{json_xs_3} = { %{ $conf{json_xs_2} } };
+    $conf{json_xs_3}{get_true}  = sub { return Types::Serialiser::true(); };
+    $conf{json_xs_3}{get_false} = sub { return Types::Serialiser::false(); };
 }
 
 sub _make_key {
@@ -248,6 +253,7 @@ sub _try_loading {
         unless ($@) {
             $handler = $testmod;
             my $key = _make_key($handler);
+            next unless exists $conf{$key};
             $encoder = $conf{$key}->{encoder};
             $decoder = $conf{$key}->{decoder};
             last;
@@ -420,7 +426,7 @@ JSON::Any - Wrapper Class for the various JSON classes.
 
 =head1 VERSION
 
-version 1.30
+version 1.31
 
 =head1 SYNOPSIS
 
@@ -505,7 +511,20 @@ JSON::Any
 
 =head1 VERSION
 
-version 1.30
+version 1.31
+
+=head1 WARNING
+
+JSON::XS 3.0 or higher has a conflict with any version of JSON.pm less than 2.90 
+when  you use JSON.pm's C<-support_by_pp> option, which JSON::Any enables by 
+default.
+
+This situation should only come up with JSON::Any if you have JSON.pm 2.61 or 
+lower and JSON::XS 3.0 or higher installed and you for JSON::Any to use JSON.pm 
+via C<use JSON::Any qw(JSON);> or the C<JSON_ANY_ORDER> environment variable.
+
+If you run into an issue where you're getting recursive inheritance errors in a 
+Types::Serialiser package, please try upgrading JSON.pm to 2.90 or higher.
 
 =head1 DEPRECATION
 
@@ -676,6 +695,10 @@ the same terms as the Perl 5 programming language system itself.
 =item *
 
 Chris Prather <cprather@hdpublishing.com>
+
+=item *
+
+Dagfinn Ilmari Mannsåker <ilmari@ilmari.org>
 
 =item *
 

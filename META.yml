@@ -6,11 +6,12 @@ author:
   - 'Robin Berjon <robin@berjon.com>'
   - 'Marc Mims <marc@questright.com>'
   - 'Tomas Doran <bobtfish@bobtfish.net>'
-build_requires: {}
+build_requires:
+  Test::Without::Module: 0.17
 configure_requires:
   ExtUtils::MakeMaker: 6.30
 dynamic_config: 1
-generated_by: 'Dist::Zilla version 4.300034, CPAN::Meta::Converter version 2.131560'
+generated_by: 'Dist::Zilla version 4.300039, CPAN::Meta::Converter version 2.132830'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -21,9 +22,10 @@ requires:
 resources:
   homepage: https://github.com/perigrin/json-any
   repository: https://github.com/perigrin/json-any.git
-version: 1.30
+version: 1.31
 x_contributors:
   - 'Chris Prather <cprather@hdpublishing.com>'
+  - 'Dagfinn Ilmari Mannsåker <ilmari@ilmari.org>'
   - 'Justin Hunter <justin.d.hunter@gmail.com>'
   - 'Todd Rinaldo <toddr@cpan.org>'
   - 'marc.mims <marc.mims@daca5766-e62f-0410-9ddd-e5e43faa6270>'

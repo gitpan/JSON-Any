@@ -14,9 +14,10 @@ override _build_WriteMakefile_dump => sub {
     $str .= <<'END_NONSENSE';
   
     sub has_json () {
-        our @order = qw(XS JSON DWIW);
+        our @order = qw(CPANEL XS PP JSON DWIW);
         foreach my $testmod (@order) {
             $testmod = "JSON::$testmod" unless $testmod eq "JSON";
+            $testmod = "Cpanel::JSON::XS" if $testmod eq "JSON::CPANEL";
             eval "require $testmod";
             return 1 unless $@;
         }
@@ -29,7 +30,7 @@ override _build_WriteMakefile_dump => sub {
     else {
 
         # we need to have a version of JSON, go with JSON.pm as a sane default
-        $WriteMakefileArgs{PREREQ_PM}{JSON} = '2.02';
+        $WriteMakefileArgs{PREREQ_PM}{JSON} = '2.90';
     }
     
   
