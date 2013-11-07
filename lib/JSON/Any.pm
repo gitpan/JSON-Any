@@ -1,9 +1,9 @@
 package JSON::Any;
 {
-  $JSON::Any::VERSION = '1.31';
+  $JSON::Any::VERSION = '1.32';
 }
 {
-  $JSON::Any::VERSION = '1.31';
+  $JSON::Any::VERSION = '1.32';
 }
 
 use warnings;
@@ -426,7 +426,7 @@ JSON::Any - Wrapper Class for the various JSON classes.
 
 =head1 VERSION
 
-version 1.31
+version 1.32
 
 =head1 SYNOPSIS
 
@@ -511,7 +511,7 @@ JSON::Any
 
 =head1 VERSION
 
-version 1.31
+version 1.32
 
 =head1 WARNING
 
@@ -703,6 +703,10 @@ Dagfinn Ilmari Mannsåker <ilmari@ilmari.org>
 =item *
 
 Justin Hunter <justin.d.hunter@gmail.com>
+
+=item *
+
+Matthew Horsfall <wolfsage@gmail.com>
 
 =item *
 

@@ -37,6 +37,7 @@
       },
       "test" : {
          "requires" : {
+            "Test::Requires" : "0",
             "Test::Without::Module" : "0.17"
          }
       }
@@ -50,11 +51,12 @@
          "web" : "https://github.com/perigrin/json-any"
       }
    },
-   "version" : "1.31",
+   "version" : "1.32",
    "x_contributors" : [
       "Chris Prather <cprather@hdpublishing.com>",
       "Dagfinn Ilmari Manns\u00e5ker <ilmari@ilmari.org>",
       "Justin Hunter <justin.d.hunter@gmail.com>",
+      "Matthew Horsfall <wolfsage@gmail.com>",
       "Todd Rinaldo <toddr@cpan.org>",
       "marc.mims <marc.mims@daca5766-e62f-0410-9ddd-e5e43faa6270>",
       "nothingmuch@woobling.org <nothingmuch@woobling.org@daca5766-e62f-0410-9ddd-e5e43faa6270>",

@@ -24,9 +24,10 @@ my %WriteMakefileArgs = (
   "NAME" => "JSON::Any",
   "PREREQ_PM" => {},
   "TEST_REQUIRES" => {
+    "Test::Requires" => 0,
     "Test::Without::Module" => "0.17"
   },
-  "VERSION" => "1.31",
+  "VERSION" => "1.32",
   "test" => {
     "TESTS" => "t/*.t"
   }
