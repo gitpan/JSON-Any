@@ -1,16 +1,13 @@
-#!perl
 $!++;
 use strict;
-use Data::Dumper;
+use warnings;
+
 use Test::More;
 
 eval "use JSON::Any";
+plan skip_all => "$@" if $@;
 
-if ($@) {
-    plan skip_all => "$@";
-    exit;
-}
-
+use Data::Dumper;
 $Data::Dumper::Indent = 0;
 $Data::Dumper::Terse  = 1;
 
@@ -20,6 +17,7 @@ my @backends = qw(XS JSON DWIW);
 # make sure we test the JSON::PP backend instead of XS, twice
 $ENV{PERL_JSON_BACKEND} = 0;
 
+# we are intentionally counting our tests here, to be safe
 plan tests => @backends * 2 * 4;
 
 test ($_) for @backends;

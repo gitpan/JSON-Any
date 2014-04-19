@@ -1,16 +1,10 @@
-#!perl
 $|++;
 use strict;
 use Test::More;
 use Test::Without::Module qw(JSON::XS);
 
 eval "use JSON::Any qw(JSON)";
-if ($@) {
-    plan skip_all => "JSON.pm not installed: $@";
-}
-else {
-    plan tests => 19;
-}
+plan skip_all => "JSON.pm not installed: $@" if $@;
 
 diag("Testing JSON.pm backend");
 my ( $js, $obj );
@@ -73,7 +67,7 @@ $js = JSON::Any->objToJson($obj);
 is($js,'{"foo":" "}');
 
 # testing the truth
-warn JSON::Any->true;
+note 'truth is ', JSON::Any->true;
 $obj = { foo => JSON::Any->true };
 $js = JSON::Any->objToJson($obj);
 is($js,'{"foo":true}');
@@ -89,3 +83,5 @@ is($js,'{"foo":true}');
 $obj = { foo => $json_obj->false };
 $js = $json_obj->objToJson($obj);
 is($js,'{"foo":false}');
+
+done_testing;

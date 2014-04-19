@@ -1,14 +1,11 @@
-#!perl 
-
 use strict;
+use warnings;
+
 use Test::More;
 eval "use JSON::Any qw(Syck)";
-if ($@) {
-    plan skip_all => "JSON::Syck not installed: $@";
-}
-else {
-    plan tests => 2;
-}
+plan skip_all => "JSON::Syck not installed: $@" if $@;
 
 ok( JSON::Any->new->objToJson( { foo => 1 } ) );
 ok( JSON::Any->new->jsonToObj('{ "foo" : 1 }') );
+
+done_testing;

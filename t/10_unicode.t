@@ -1,10 +1,12 @@
-#!perl
 $|++;
 use strict;
+use warnings;
+
 use utf8;
 use Test::More;
 
-use Test::Requires 'JSON::Any';
+eval "use JSON::Any";
+plan skip_all => "$@" if $@;
 
 $ENV{JSON_ANY_CONFIG} = "utf8=1";
 
@@ -71,7 +73,7 @@ sub run_tests_for {
     run_tests_for 'XS';
 }
 
-{ 
+{
     require Test::Without::Module;
     Test::Without::Module->import('JSON::XS');
     run_tests_for $_ for (qw(PP JSON CPANEL DWIW));

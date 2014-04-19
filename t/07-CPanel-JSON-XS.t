@@ -1,18 +1,12 @@
-#!perl 
-
 use utf8;
 use strict;
+use warnings;
+
 use Test::More;
 
 eval "use JSON::Any qw(CPANEL)";
-if ($@) {
-    plan skip_all => "Cpanel::JSON::XS not installed: $@";
-}
-else {
-    plan tests => 24;
-}
+plan skip_all => "Cpanel::JSON::XS not installed: $@" if $@;
 
-skip "Cpanel::JSON::XS not installed: $@", 1 if $@;
 diag("Testing Cpanel::JSON::XS backend");
 
 is( JSON::Any->encode({foo=>'bar'}), qq[{"foo":"bar"}] );
@@ -68,3 +62,5 @@ is($js,'{"foo":true}');
 $obj = { foo => $json->false };
 $js = $json->objToJson($obj);
 is($js,'{"foo":false}');
+
+done_testing;

@@ -1,15 +1,10 @@
-#!perl
-
 use strict;
-use Test::More;
-eval "use JSON::Any";
+use warnings;
 
-if ($@) {
-    plan skip_all => "$@";
-}
-else {
-    plan 'no_plan';
-}
+use Test::More;
+
+eval "use JSON::Any";
+plan skip_all => "$@" if $@;
 
 SKIP: {
     eval { require JSON; };
@@ -41,3 +36,5 @@ SKIP: {
     ok( $json->encode("dahut"), qq["dahut"] );
     is( $@, undef, 'no failure' );
 }
+
+done_testing;

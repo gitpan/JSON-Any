@@ -12,7 +12,7 @@ override _build_WriteMakefile_dump => sub {
     $str .= ";\n\n";
 
     $str .= <<'END_NONSENSE';
-  
+
     sub has_json () {
         our @order = qw(CPANEL XS PP JSON DWIW);
         foreach my $testmod (@order) {
@@ -28,12 +28,11 @@ override _build_WriteMakefile_dump => sub {
         # we have some kind of supported JSON module, we're good
     }
     else {
-
-        # we need to have a version of JSON, go with JSON.pm as a sane default
-        $WriteMakefileArgs{PREREQ_PM}{JSON} = '2.90';
+        # we need to have a version of JSON, go with JSON::PP as a sane default
+        $WriteMakefileArgs{PREREQ_PM}{'JSON::PP'} = '0';
     }
-    
-  
+
+
 END_NONSENSE
 
     return $str;
