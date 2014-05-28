@@ -34,7 +34,13 @@ sub _merge_requires {
 }
 
 my %include = map {; $_ => 1 } qw(
-
+  JSON
+  JSON::PP
+  JSON::DWIW
+  JSON::Syck
+  JSON::XS
+  Cpanel::JSON::XS
+  JSON::MaybeXS
 );
 
 my %exclude = map {; $_ => 1 } qw(
@@ -50,17 +56,17 @@ my $static_prereqs = do { my $x = {
                       },
        'develop' => {
                       'recommends' => {
-                                        'Dist::Zilla::PluginBundle::Author::ETHER' => '0.058'
+                                        'Dist::Zilla::PluginBundle::Author::ETHER' => '0.064'
                                       },
                       'requires' => {
                                       'Cpanel::JSON::XS' => '0',
-                                      'Dist::Zilla' => '5.015',
+                                      'Dist::Zilla' => '5',
                                       'Dist::Zilla::Plugin::ContributorsFromGit' => '0',
+                                      'Dist::Zilla::Plugin::DynamicPrereqs' => '0',
                                       'Dist::Zilla::Plugin::Encoding' => '0',
                                       'Dist::Zilla::Plugin::GitHub::Update' => '0',
                                       'Dist::Zilla::Plugin::GithubMeta' => '0',
-                                      'Dist::Zilla::Plugin::MakeMaker::Awesome' => '0',
-                                      'Dist::Zilla::Plugin::Meta::Dynamic::Config' => '0',
+                                      'Dist::Zilla::Plugin::MakeMaker' => '0',
                                       'Dist::Zilla::Plugin::Prereqs' => '0',
                                       'Dist::Zilla::Plugin::RemovePrereqs' => '0',
                                       'Dist::Zilla::PluginBundle::Author::ETHER' => '0.058',
@@ -73,6 +79,7 @@ my $static_prereqs = do { my $x = {
                                       'JSON::Syck' => '0',
                                       'JSON::XS' => '0',
                                       'Pod::Coverage::TrustPod' => '0',
+                                      'Pod::Weaver::Section::Contributors' => '0',
                                       'Test::CPAN::Changes' => '0.19',
                                       'Test::CPAN::Meta' => '0',
                                       'Test::Kwalitee' => '1.12',
@@ -98,7 +105,6 @@ my $static_prereqs = do { my $x = {
                                    },
                    'requires' => {
                                    'Data::Dumper' => '0',
-                                   'Devel::StringInfo' => '0',
                                    'ExtUtils::MakeMaker' => '0',
                                    'File::Spec::Functions' => '0',
                                    'List::Util' => '0',

@@ -4,7 +4,7 @@ JSON::Any - Wrapper Class for the various JSON classes.
 
 # VERSION
 
-version 1.33
+version 1.34
 
 # SYNOPSIS
 
@@ -77,7 +77,7 @@ or
     $ENV{JSON_ANY_ORDER} = 'Syck XS JSON';
 
 At install time, JSON::Any will attempt to install [JSON::PP](https://metacpan.org/pod/JSON::PP) as a reasonable
-fallback if you do not appear have __any__ backends installed on your system.
+fallback if you do not appear have **any** backends installed on your system.
 
 WARNING: If you call JSON::Any with an empty list
 
@@ -93,7 +93,7 @@ when you use [JSON.pm](https://metacpan.org/pod/JSON)'s `-support_by_pp` option,
 default.
 
 This situation should only come up with JSON::Any if you have [JSON.pm](https://metacpan.org/pod/JSON) 2.61 or
-lower __and__ [JSON::XS](https://metacpan.org/pod/JSON::XS) 3.0 or higher installed, and you use [JSON.pm](https://metacpan.org/pod/JSON)
+lower **and** [JSON::XS](https://metacpan.org/pod/JSON::XS) 3.0 or higher installed, and you use [JSON.pm](https://metacpan.org/pod/JSON)
 via `use JSON::Any qw(JSON);` or the `JSON_ANY_ORDER` environment variable.
 
 If you run into an issue where you're getting recursive inheritance errors in a

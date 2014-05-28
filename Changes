@@ -1,5 +1,9 @@
 Revision history for JSON-Any
 
+1.34      2014-05-28 21:31:20Z
+    - remove test dependency on Devel::StringInfo, which requires Moose
+      (RT#96034)
+
 1.33      2014-04-19 05:58:46Z
     - line numbers in shipped code are now almost the same (within 3) as the
       repository source, for easier debugging

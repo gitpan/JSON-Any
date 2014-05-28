@@ -2,8 +2,8 @@ package JSON::Any;
 BEGIN {
   $JSON::Any::AUTHORITY = 'cpan:ETHER';
 }
-# git description: v1.32-21-g19a557b
-$JSON::Any::VERSION = '1.33';
+# git description: v1.33-7-g26708bf
+$JSON::Any::VERSION = '1.34';
 
 use warnings;
 use strict;
@@ -248,8 +248,7 @@ sub _try_loading {
     ( $handler, $encoder, $decoder ) = ();
     foreach my $mod (@order) {
         my $testmod = _module_name($mod);
-        eval "require $testmod";
-        unless ($@) {
+        if (eval "require $testmod; 1") {
             $handler = $testmod;
             my $key = _make_key($handler);
             next unless exists $conf{$key};
@@ -293,8 +292,8 @@ sub import {
     unless ($handler) {
         croak "Couldn't find a JSON package. Need ", _module_name_list(@order ? @order : @default);
     }
-    croak "Couldn't find a decoder method." unless $decoder;
-    croak "Couldn't find a encoder method." unless $encoder;
+    croak "Couldn't find a working decoder method (but found handler $handler ", $handler->VERSION, ")." unless $decoder;
+    croak "Couldn't find a working encoder method (but found handler $handler ", $handler->VERSION, ")." unless $encoder;
 }
 
 sub _module_name_list {
@@ -653,7 +652,7 @@ JSON::Any - Wrapper Class for the various JSON classes.
 
 =head1 VERSION
 
-version 1.33
+version 1.34
 
 =head1 SYNOPSIS
 

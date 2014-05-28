@@ -36,13 +36,7 @@ sub run_tests_for {
 
         is_deeply( $thawed, $struct, "deeply" );
 
-        is( $thawed->[0], $text, "text is the same" ) || eval {
-            require Devel::StringInfo;
-            my $d = Devel::StringInfo->new;
-            $d->dump_info( $text, name => "expected" );
-            $d->dump_info( $thawed->[0], name => "got" );
-            $d->dump_info($frozen);
-        };
+        compare_strings($thawed->[0], $text);
 
         ok( utf8::is_utf8( $thawed->[0] ) || !scalar( $text !~ /[a-z]/ ),
             "text is utf8 if it needs to be" );
@@ -54,13 +48,7 @@ sub run_tests_for {
 
             is_deeply( $thawed, $struct, "deeply" );
 
-            is( $thawed->[0], $text, "text is the same" ) || eval {
-                require Devel::StringInfo;
-                my $d = Devel::StringInfo->new;
-                $d->dump_info( $text, name => "expected" );
-                $d->dump_info( $thawed->[0], name => "got" );
-                $d->dump_info($frozen);
-            };
+            compare_strings($thawed->[0], $text);
 
             ok( utf8::is_utf8( $thawed->[0] ) || !scalar( $text !~ /[a-z]/ ),
                 "text is utf8 if it needs to be" );
@@ -68,6 +56,25 @@ sub run_tests_for {
     }
 }
 
+sub compare_strings {
+    my ($got, $expected) = @_;
+
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    is( $got, $expected, "text is the same" ) && return;
+
+    require Data::Dumper;
+    no warnings 'once';
+    local $Data::Dumper::Terse = 1;
+
+    binmode $_, ':utf8' foreach 'STDOUT', 'STDERR',
+        map { Test::Builder->new->$_ } qw(output failure_output);
+
+    diag 'raw form: ', Data::Dumper::Dumper({
+        got => $got,
+        expected => $expected,
+        got_is_utf8 => (utf8::is_utf8($got) ? 1 : 0),
+    });
+}
 
 {
     run_tests_for 'XS';
