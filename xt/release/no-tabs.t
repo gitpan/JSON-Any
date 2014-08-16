@@ -9,6 +9,7 @@ use Test::NoTabs;
 my @files = (
     'lib/JSON/Any.pm',
     't/00-load.t',
+    't/00-report-prereqs.dd',
     't/00-report-prereqs.t',
     't/01-JSON.t',
     't/02-JSON-XS.t',
@@ -25,6 +26,7 @@ my @files = (
     'xt/author/00-compile.t',
     'xt/author/pod-spell.t',
     'xt/release/changes_has_content.t',
+    'xt/release/clean-namespaces.t',
     'xt/release/cpan-changes.t',
     'xt/release/distmeta.t',
     'xt/release/eol.t',

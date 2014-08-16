@@ -2,14 +2,16 @@ package JSON::Any;
 BEGIN {
   $JSON::Any::AUTHORITY = 'cpan:ETHER';
 }
-# git description: v1.33-7-g26708bf
-$JSON::Any::VERSION = '1.34';
+# git description: v1.34-8-gde06e26
+$JSON::Any::VERSION = '1.35';
 
 use warnings;
 use strict;
 use Carp qw(croak carp);
+use namespace::clean;
 
-# ABSTRACT: Wrapper Class for the various JSON classes.
+# ABSTRACT: Wrapper Class for the various JSON classes (DEPRECATED)
+# KEYWORDS: json serialization serialisation wrapper abstraction
 
 our $UTF8;
 
@@ -307,6 +309,22 @@ sub _module_name_list {
 
 #pod =head1 SYNOPSIS
 #pod
+#pod     use JSON::Any;
+#pod     my $j = JSON::Any->new;
+#pod     my $json = $j->objToJson({foo=>'bar', baz=>'quux'});
+#pod     my $obj = $j->jsonToObj($json);
+#pod
+#pod =head1 DEPRECATION NOTICE
+#pod
+#pod The original need for L<JSON::Any> has been solved (quite some time ago
+#pod actually). If you're producing new code it is recommended to use L<JSON::MaybeXS> which
+#pod will optionally use L<Cpanel::JSON::XS> for speed purposes.
+#pod
+#pod JSON::Any will continue to be maintained for compatibility with existing code,
+#pod but for new code you should strongly consider using L<JSON::MaybeXS> instead.
+#pod
+#pod =head1 DESCRIPTION
+#pod
 #pod This module tries to provide a coherent API to bring together the various JSON
 #pod modules currently on CPAN. This module will allow you to code to any JSON API
 #pod and have it work regardless of which JSON module is actually installed.
@@ -397,15 +415,6 @@ sub _module_name_list {
 #pod
 #pod If you run into an issue where you're getting recursive inheritance errors in a
 #pod L<Types::Serialiser> package, please try upgrading L<JSON.pm|JSON> to 2.90 or higher.
-#pod
-#pod =head1 DEPRECATION
-#pod
-#pod The original need for L<JSON::Any> has been solved (quite some time ago
-#pod actually). If you're producing new code it is recommended to use L<JSON::MaybeXS> which
-#pod will optionally use L<Cpanel::JSON::XS> for speed purposes.
-#pod
-#pod JSON::Any will continue to be maintained for compatibility with existing code,
-#pod but for new code you should strongly consider using L<JSON::MaybeXS> instead.
 #pod
 #pod =head1 METHODS
 #pod
@@ -648,13 +657,20 @@ __END__
 
 =head1 NAME
 
-JSON::Any - Wrapper Class for the various JSON classes.
+JSON::Any - Wrapper Class for the various JSON classes (DEPRECATED)
 
 =head1 VERSION
 
-version 1.34
+version 1.35
 
 =head1 SYNOPSIS
+
+    use JSON::Any;
+    my $j = JSON::Any->new;
+    my $json = $j->objToJson({foo=>'bar', baz=>'quux'});
+    my $obj = $j->jsonToObj($json);
+
+=head1 DESCRIPTION
 
 This module tries to provide a coherent API to bring together the various JSON
 modules currently on CPAN. This module will allow you to code to any JSON API
@@ -734,6 +750,15 @@ WARNING: If you call JSON::Any with an empty list
 It will skip the JSON package detection routines and will die loudly that it
 couldn't find a package.
 
+=head1 DEPRECATION NOTICE
+
+The original need for L<JSON::Any> has been solved (quite some time ago
+actually). If you're producing new code it is recommended to use L<JSON::MaybeXS> which
+will optionally use L<Cpanel::JSON::XS> for speed purposes.
+
+JSON::Any will continue to be maintained for compatibility with existing code,
+but for new code you should strongly consider using L<JSON::MaybeXS> instead.
+
 =head1 WARNING
 
 L<JSON::XS> 3.0 or higher has a conflict with any version of L<JSON.pm|JSON> less than 2.90
@@ -746,15 +771,6 @@ via C<< use JSON::Any qw(JSON); >> or the C<JSON_ANY_ORDER> environment variable
 
 If you run into an issue where you're getting recursive inheritance errors in a
 L<Types::Serialiser> package, please try upgrading L<JSON.pm|JSON> to 2.90 or higher.
-
-=head1 DEPRECATION
-
-The original need for L<JSON::Any> has been solved (quite some time ago
-actually). If you're producing new code it is recommended to use L<JSON::MaybeXS> which
-will optionally use L<Cpanel::JSON::XS> for speed purposes.
-
-JSON::Any will continue to be maintained for compatibility with existing code,
-but for new code you should strongly consider using L<JSON::MaybeXS> instead.
 
 =head1 METHODS
 
@@ -915,7 +931,17 @@ the same terms as the Perl 5 programming language system itself.
 
 =head1 CONTRIBUTORS
 
+=for stopwords Karen Etheridge יובל קוג'מן (Yuval Kogman) Dagfinn Ilmari Mannsåker Justin Hunter Todd Rinaldo Matthew Horsfall
+
 =over 4
+
+=item *
+
+Karen Etheridge <ether@cpan.org>
+
+=item *
+
+יובל קוג'מן (Yuval Kogman) <nothingmuch@woobling.org>
 
 =item *
 
@@ -927,19 +953,11 @@ Justin Hunter <justin.d.hunter@gmail.com>
 
 =item *
 
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Matthew Horsfall <wolfsage@gmail.com>
-
-=item *
-
 Todd Rinaldo <toddr@cpan.org>
 
 =item *
 
-יובל קוג'מן (Yuval Kogman) <nothingmuch@woobling.org>
+Matthew Horsfall <wolfsage@gmail.com>
 
 =back
 

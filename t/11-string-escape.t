@@ -41,14 +41,14 @@ my %one_way = (
 
 sub test {
     my ($backend) = @_;
+
     my $j = eval {
         JSON::Any->import($backend);
         JSON::Any->new;
     };
 
-    note "$backend: " . $@ and next if $@;
-
-    $j and $j->handler or next;
+    note "$backend: " . $@ and return if $@;
+    $j and $j->handler or return;
 
     note "handler is " . ( ref( $j->handler ) || $j->handlerType );
 
