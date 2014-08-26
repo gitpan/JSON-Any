@@ -4,8 +4,7 @@ use warnings;
 use Test::More;
 use Test::Warnings 0.009 qw(:no_end_test :all);
 
-eval { require JSON::Any; };
-plan skip_all => "$@" if $@;
+require JSON::Any;
 
 use Test::Requires 'JSON::Syck';
 

@@ -4,8 +4,7 @@ use warnings;
 use Test::More;
 use Test::Fatal;
 
-eval { require JSON::Any; };
-plan skip_all => "$@" if $@;
+require JSON::Any;
 
 use Test::Without::Module qw(Cpanel::JSON::XS JSON::XS JSON::DWIW JSON JSON::PP JSON::Syck);
 

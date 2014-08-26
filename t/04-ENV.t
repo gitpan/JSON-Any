@@ -2,39 +2,49 @@ use strict;
 use warnings;
 
 use Test::More;
+use Test::Fatal;
+use JSON::Any;
 
-eval "use JSON::Any";
-plan skip_all => "$@" if $@;
+my $has_cpanel = eval { require Cpanel::JSON::XS; 1 };
+my $has_json_xs; $has_json_xs = eval { require JSON::XS; 1 } if not $has_cpanel;
 
-SKIP: {
-    eval { require JSON; };
-    skip "JSON not installed: $@", 1 if $@;
+plan skip_all => 'Cpanel::JSON::XS nor JSON::XS are installed', 1
+    if not $has_cpanel and not $has_json_xs;
 
-    $ENV{JSON_ANY_ORDER} = qw(JSON);
-    JSON::Any->import();
-    skip "JSON not installed: $@", 1 if $@;
-    is_deeply( $ENV{JSON_ANY_ORDER}, qw(JSON) );
-    is( JSON::Any->handlerType, 'JSON' );
-}
-
-SKIP: {
-    eval { require JSON::XS; };
-    skip "JSON::XS not installed: $@", 1 if $@;
-
-    $ENV{JSON_ANY_ORDER} = qw(XS);
+{
+    $ENV{JSON_ANY_ORDER} = 'CPANEL XS';
 
     JSON::Any->import();
-    is( JSON::Any->handlerType, 'JSON::XS' );
+    is(
+        JSON::Any->handlerType,
+        ($has_cpanel ? 'Cpanel::' : '') . 'JSON::XS',
+        'got the right handlerType',
+    );
 
     my ($json);
-    ok( $json = JSON::Any->new() );
-    eval { $json->encode("ü") };
-    ok( $@, 'trapped a failure' );
-    undef $@;
+    ok( $json = JSON::Any->new(), 'got a JSON::Any object' );
+    like(
+        exception { $json->encode("dahut") },
+        qr/use allow_nonref/,
+        'trapped a failure because of a non-reference',
+    );
+
     $ENV{JSON_ANY_CONFIG} = 'allow_nonref=1';
-    ok( $json = JSON::Any->new() );
-    ok( $json->encode("dahut"), qq["dahut"] );
-    is( $@, undef, 'no failure' );
+    ok( $json = JSON::Any->new(), 'got another JSON::Any object' );
+
+    is(
+        exception { ok( $json->encode("dahut"), 'got the same data back again' ) },
+        undef,
+        'no failure with config change',
+    );
+
+    ok( $json = JSON::Any->new(allow_nonref => 0), 'got another JSON::Any object' );
+
+    like(
+        exception { $json->encode("dahut") },
+        qr/use allow_nonref/,
+        'trapped a failure because the constructor option overrides the environment variable',
+    );
 }
 
 done_testing;

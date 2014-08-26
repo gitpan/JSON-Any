@@ -1,12 +1,9 @@
-$|++;
 use strict;
 use warnings;
 
 use utf8;
 use Test::More;
-
-eval "use JSON::Any";
-plan skip_all => "$@" if $@;
+use JSON::Any;
 
 $ENV{JSON_ANY_CONFIG} = "utf8=1";
 

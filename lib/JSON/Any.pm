@@ -1,9 +1,6 @@
 package JSON::Any;
-BEGIN {
-  $JSON::Any::AUTHORITY = 'cpan:ETHER';
-}
-# git description: v1.34-8-gde06e26
-$JSON::Any::VERSION = '1.35';
+# git description: v1.35-13-g383eebf
+$JSON::Any::VERSION = '1.36';
 
 use warnings;
 use strict;
@@ -427,7 +424,7 @@ sub _module_name_list {
 #pod Will take any of the parameters for the underlying system and pass them
 #pod through. However these values don't map between JSON modules, so, from a
 #pod portability standpoint this is really only helpful for those parameters that
-#pod happen to have the same name. This will be addressed in a future release.
+#pod happen to have the same name.
 #pod
 #pod The one parameter that is universally supported (to the extent that is
 #pod supported by the underlying JSON modules) is C<utf8>. When this parameter is
@@ -452,11 +449,13 @@ sub new {
     my $self  = bless [], $class;
     my $key   = _make_key($handler);
     if ( my $creator = $conf{$key}->{create_object} ) {
-        my @config = @_;
+        my @config;
+        # undocumented! and yet, people are using this...
         if ( $ENV{JSON_ANY_CONFIG} ) {
             push @config, map { split /=/, $_ } split /,\s*/,
               $ENV{JSON_ANY_CONFIG};
         }
+        push @config, @_;
         $creator->( $self, my $conf = {@config} );
         $self->[UTF8] = $conf->{utf8};
     }
@@ -661,7 +660,7 @@ JSON::Any - Wrapper Class for the various JSON classes (DEPRECATED)
 
 =head1 VERSION
 
-version 1.35
+version 1.36
 
 =head1 SYNOPSIS
 
@@ -783,7 +782,7 @@ L<Types::Serialiser> package, please try upgrading L<JSON.pm|JSON> to 2.90 or hi
 Will take any of the parameters for the underlying system and pass them
 through. However these values don't map between JSON modules, so, from a
 portability standpoint this is really only helpful for those parameters that
-happen to have the same name. This will be addressed in a future release.
+happen to have the same name.
 
 The one parameter that is universally supported (to the extent that is
 supported by the underlying JSON modules) is C<utf8>. When this parameter is

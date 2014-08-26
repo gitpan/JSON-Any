@@ -1,5 +1,9 @@
 Revision history for JSON-Any
 
+1.36      2014-08-26 05:54:35Z
+    - many improvements to tests and their coverage
+    - $ENV{JSON_ANY_CONFIG} can no longer override constructor arguments
+
 1.35      2014-08-16 00:51:05Z
     - clarify deprecation status in documentation
 

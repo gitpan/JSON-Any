@@ -1,16 +1,10 @@
-$!++;
 use strict;
 use warnings;
 
-use Data::Dumper;
 use Test::More;
-
 use Storable;
-eval "use JSON::Any";
-plan skip_all => "$@" if $@;
-
-$Data::Dumper::Indent = 0;
-$Data::Dumper::Terse  = 1;
+use Data::Dumper;
+use JSON::Any;
 
 my @round_trip = (
     '"\""',
@@ -62,6 +56,9 @@ sub test {
             s/([,:]) /$1/eg;
         }
 
+        local $Data::Dumper::Indent = 0;
+        local $Data::Dumper::Terse  = 1;
+
         my $desc = "roundtrip $test -> " . Dumper($data) . " -> $json";
         utf8::encode($desc);
         is $json, $test, $desc;
@@ -71,6 +68,9 @@ sub test {
     while ( my ($encoded, $expected) = each %one_way ) {
         my $test = "[$encoded]";
         my $data = eval { JSON::Any->jsonToObj($test) };
+
+        local $Data::Dumper::Indent = 0;
+        local $Data::Dumper::Terse  = 1;
 
         my $desc = "oneway $test -> " . Dumper($data);
         utf8::encode($desc);
