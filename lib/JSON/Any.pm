@@ -1,6 +1,6 @@
 package JSON::Any;
-# git description: v1.36-2-g3f9616f
-$JSON::Any::VERSION = '1.37';
+# git description: v1.37-1-g15d51fd
+$JSON::Any::VERSION = '1.38';
 
 use warnings;
 use strict;
@@ -660,7 +660,7 @@ JSON::Any - Wrapper Class for the various JSON classes (DEPRECATED)
 
 =head1 VERSION
 
-version 1.37
+version 1.38
 
 =head1 SYNOPSIS
 

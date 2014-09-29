@@ -45,7 +45,7 @@ sub test {
                 "inflated '$bool'",
             );
 
-            cmp_ok( $data, '^', !Boolean->$bool, "$bool evaluates to $bool" );
+            ok( ($data xor !Boolean->$bool), "$bool evaluates to $bool" );
 
             is(
                 exception { $data = JSON::Any->$bool },
@@ -53,7 +53,7 @@ sub test {
                 "JSON::Any->$bool returned a value",
             );
 
-            cmp_ok( $data, '^', !Boolean->$bool, "JSON::Any->$bool evaluates to $bool" );
+            ok( ($data xor !Boolean->$bool), "JSON::Any->$bool evaluates to $bool" );
         }
     };
 }

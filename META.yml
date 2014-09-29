@@ -39,7 +39,7 @@ no_index:
 provides:
   JSON::Any:
     file: lib/JSON/Any.pm
-    version: '1.37'
+    version: '1.38'
 requires:
   Carp: '0'
   constant: '0'
@@ -51,7 +51,7 @@ resources:
   bugtracker: https://rt.cpan.org/Public/Dist/Display.html?Name=JSON-Any
   homepage: https://github.com/karenetheridge/JSON-Any
   repository: https://github.com/karenetheridge/JSON-Any.git
-version: '1.37'
+version: '1.38'
 x_Dist_Zilla:
   perl:
     version: '5.021003'
@@ -558,7 +558,7 @@ x_Dist_Zilla:
         Dist::Zilla::Plugin::Git::Tag:
           branch: ~
           signed: 0
-          tag: v1.37
+          tag: v1.38
           tag_format: v%v%t
           tag_message: v%v%t
           time_zone: local

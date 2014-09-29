@@ -1,5 +1,8 @@
 Revision history for JSON-Any
 
+1.38      2014-09-29 16:42:08Z
+    - real fix to tests from 1.37
+
 1.37      2014-09-29 16:29:44Z
     - fix tests to use a higher precedence operator, to avoid confusing newer
       Test::More::cmp_ok.
