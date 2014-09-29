@@ -20,7 +20,7 @@ build_requires:
 configure_requires:
   ExtUtils::MakeMaker: '0'
 dynamic_config: 1
-generated_by: 'Dist::Zilla version 5.020, CPAN::Meta::Converter version 2.142060'
+generated_by: 'Dist::Zilla version 5.020, CPAN::Meta::Converter version 2.142690'
 keywords:
   - json
   - serialization
@@ -39,7 +39,7 @@ no_index:
 provides:
   JSON::Any:
     file: lib/JSON/Any.pm
-    version: '1.36'
+    version: '1.37'
 requires:
   Carp: '0'
   constant: '0'
@@ -51,7 +51,7 @@ resources:
   bugtracker: https://rt.cpan.org/Public/Dist/Display.html?Name=JSON-Any
   homepage: https://github.com/karenetheridge/JSON-Any
   repository: https://github.com/karenetheridge/JSON-Any.git
-version: '1.36'
+version: '1.37'
 x_Dist_Zilla:
   perl:
     version: '5.021003'
@@ -74,7 +74,7 @@ x_Dist_Zilla:
         Dist::Zilla::Role::Git::Repo:
           repo_root: .
       name: '@Author::ETHER/Git::NextVersion'
-      version: '2.023'
+      version: '2.024'
     -
       class: Dist::Zilla::Plugin::PromptIfStale
       config:
@@ -86,7 +86,7 @@ x_Dist_Zilla:
           phase: build
           skip: []
       name: '@Author::ETHER/stale modules, build'
-      version: '0.024'
+      version: '0.027'
     -
       class: Dist::Zilla::Plugin::PromptIfStale
       config:
@@ -97,7 +97,7 @@ x_Dist_Zilla:
           phase: release
           skip: []
       name: '@Author::ETHER/stale modules, release'
-      version: '0.024'
+      version: '0.027'
     -
       class: Dist::Zilla::Plugin::ExecDir
       name: '@Author::ETHER/ExecDir'
@@ -122,7 +122,7 @@ x_Dist_Zilla:
         Dist::Zilla::Role::Git::Repo:
           repo_root: .
       name: '@Author::ETHER/Git::GatherDir'
-      version: '2.023'
+      version: '2.024'
     -
       class: Dist::Zilla::Plugin::MetaYAML
       name: '@Author::ETHER/MetaYAML'
@@ -228,7 +228,7 @@ x_Dist_Zilla:
           filename: xt/release/kwalitee.t
           skiptest: []
       name: '@Author::ETHER/Test::Kwalitee'
-      version: '2.10'
+      version: '2.11'
     -
       class: Dist::Zilla::Plugin::MojibakeTests
       name: '@Author::ETHER/MojibakeTests'
@@ -249,6 +249,13 @@ x_Dist_Zilla:
       class: Dist::Zilla::Plugin::PkgVersion
       name: '@Author::ETHER/PkgVersion'
       version: '5.020'
+    -
+      class: Dist::Zilla::Plugin::AuthorityFromModule
+      config:
+        Dist::Zilla::Plugin::AuthorityFromModule:
+          module: JSON::Any
+      name: '@Author::ETHER/AuthorityFromModule'
+      version: '0.002'
     -
       class: Dist::Zilla::Plugin::Authority
       name: '@Author::ETHER/Authority'
@@ -338,7 +345,7 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::ReadmeAnyFromPod
       name: '@Author::ETHER/ReadmeAnyFromPod'
-      version: '0.142250'
+      version: '0.142470'
     -
       class: Dist::Zilla::Plugin::GithubMeta
       name: '@Author::ETHER/GithubMeta'
@@ -367,7 +374,7 @@ x_Dist_Zilla:
           inherit_version: '1'
           meta_noindex: '1'
       name: '@Author::ETHER/MetaProvides::Package'
-      version: '2.001000'
+      version: '2.001002'
     -
       class: Dist::Zilla::Plugin::MetaConfig
       name: '@Author::ETHER/MetaConfig'
@@ -447,7 +454,7 @@ x_Dist_Zilla:
           run:
             - "bash -c \"if [[ `dirname %d` != .build ]]; then test -e .ackrc && grep -q -- '--ignore-dir=%d' .ackrc || echo '--ignore-dir=%d' >> .ackrc; fi; if [[ %d =~ ^%n-[.[:xdigit:]]+$ ]]; then rm -f .latest; ln -s %d .latest; fi\""
       name: '@Author::ETHER/Run::AfterBuild'
-      version: '0.023'
+      version: '0.026'
     -
       class: Dist::Zilla::Plugin::CheckStrictVersion
       name: '@Author::ETHER/CheckStrictVersion'
@@ -464,7 +471,7 @@ x_Dist_Zilla:
         Dist::Zilla::Role::Git::Repo:
           repo_root: .
       name: '@Author::ETHER/initial check'
-      version: '2.023'
+      version: '2.024'
     -
       class: Dist::Zilla::Plugin::Git::CheckFor::MergeConflicts
       config:
@@ -503,7 +510,7 @@ x_Dist_Zilla:
         Dist::Zilla::Role::Git::Repo:
           repo_root: .
       name: '@Author::ETHER/after tests'
-      version: '2.023'
+      version: '2.024'
     -
       class: Dist::Zilla::Plugin::CheckIssues
       name: '@Author::ETHER/CheckIssues'
@@ -523,7 +530,7 @@ x_Dist_Zilla:
           run:
             - 'rm -f README.md'
       name: '@Author::ETHER/remove old READMEs'
-      version: '0.023'
+      version: '0.026'
     -
       class: Dist::Zilla::Plugin::Git::Commit
       config:
@@ -544,21 +551,21 @@ x_Dist_Zilla:
         Dist::Zilla::Role::Git::Repo:
           repo_root: .
       name: '@Author::ETHER/Git::Commit'
-      version: '2.023'
+      version: '2.024'
     -
       class: Dist::Zilla::Plugin::Git::Tag
       config:
         Dist::Zilla::Plugin::Git::Tag:
           branch: ~
           signed: 0
-          tag: v1.36
+          tag: v1.37
           tag_format: v%v%t
           tag_message: v%v%t
           time_zone: local
         Dist::Zilla::Role::Git::Repo:
           repo_root: .
       name: '@Author::ETHER/Git::Tag'
-      version: '2.023'
+      version: '2.024'
     -
       class: Dist::Zilla::Plugin::GitHub::Update
       name: '@Author::ETHER/GitHub::Update'
@@ -573,14 +580,14 @@ x_Dist_Zilla:
         Dist::Zilla::Role::Git::Repo:
           repo_root: .
       name: '@Author::ETHER/Git::Push'
-      version: '2.023'
+      version: '2.024'
     -
       class: Dist::Zilla::Plugin::Run::AfterRelease
       config:
         Dist::Zilla::Plugin::Run::Role::Runner:
           run: REDACTED
       name: '@Author::ETHER/install release'
-      version: '0.023'
+      version: '0.026'
     -
       class: Dist::Zilla::Plugin::ConfirmRelease
       name: '@Author::ETHER/ConfirmRelease'
@@ -588,7 +595,7 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::DynamicPrereqs
       name: DynamicPrereqs
-      version: '0.005'
+      version: '0.007'
     -
       class: Dist::Zilla::Plugin::RemovePrereqs
       config:
@@ -622,10 +629,10 @@ x_Dist_Zilla:
       class: Dist::Zilla::Plugin::Test::CleanNamespaces
       config:
         Dist::Zilla::Plugin::Test::CleanNamespaces:
-          filename: xt/release/clean-namespaces.t
+          filename: xt/author/clean-namespaces.t
           skips: []
       name: Test::CleanNamespaces
-      version: '0.005'
+      version: '0.006'
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':InstallModules'
@@ -668,6 +675,7 @@ x_Dist_Zilla:
       is_trial: '0'
     version: '5.020'
 x_authority: cpan:ETHER
+x_authority_from_module: JSON::Any
 x_contributors:
   - 'Karen Etheridge <ether@cpan.org>'
   - "יובל קוג'מן (Yuval Kogman) <nothingmuch@woobling.org>"
@@ -675,3 +683,4 @@ x_contributors:
   - 'Justin Hunter <justin.d.hunter@gmail.com>'
   - 'Todd Rinaldo <toddr@cpan.org>'
   - 'Matthew Horsfall <wolfsage@gmail.com>'
+x_permissions_from_module: JSON::Any

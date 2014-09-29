@@ -1,5 +1,9 @@
 Revision history for JSON-Any
 
+1.37      2014-09-29 16:29:44Z
+    - fix tests to use a higher precedence operator, to avoid confusing newer
+      Test::More::cmp_ok.
+
 1.36      2014-08-26 05:54:35Z
     - many improvements to tests and their coverage
     - $ENV{JSON_ANY_CONFIG} can no longer override constructor arguments

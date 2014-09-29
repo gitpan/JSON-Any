@@ -38,7 +38,7 @@ my %WriteMakefileArgs = (
     "Test::Without::Module" => 0,
     "utf8" => 0
   },
-  "VERSION" => "1.36",
+  "VERSION" => "1.37",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -63,23 +63,23 @@ my %FallbackPrereqs = (
   "warnings" => 0
 );
 
+# inserted by Dist::Zilla::Plugin::DynamicPrereqs 0.007
 sub has_json () {
-our @order = qw(CPANEL XS PP JSON DWIW);
-foreach my $testmod (@order) {
-$testmod = "JSON::$testmod" unless $testmod eq "JSON";
-$testmod = "Cpanel::JSON::XS" if $testmod eq "JSON::CPANEL";
-eval "require $testmod";
-return 1 unless $@;
+    our @order = qw(CPANEL XS PP JSON DWIW);
+    foreach my $testmod (@order) {
+        $testmod = "JSON::$testmod" unless $testmod eq "JSON";
+        $testmod = "Cpanel::JSON::XS" if $testmod eq "JSON::CPANEL";
+        eval "require $testmod";
+        return 1 unless $@;
+    }
+    return 0;
 }
-return 0;
-}
-
 if (has_json) {
-# we have some kind of supported JSON module, we're good
+    # we have some kind of supported JSON module, we're good
 }
 else {
-# we need to have a version of JSON, go with JSON::PP as a sane default
-$WriteMakefileArgs{PREREQ_PM}{'JSON::PP'} = $FallbackPrereqs{'JSON::PP'} = '0';
+    # we need to have a version of JSON, go with JSON::PP as a sane default
+    $WriteMakefileArgs{PREREQ_PM}{'JSON::PP'} = $FallbackPrereqs{'JSON::PP'} = '0';
 }
 
 
@@ -94,5 +94,6 @@ delete $WriteMakefileArgs{CONFIGURE_REQUIRES}
   unless eval { ExtUtils::MakeMaker->VERSION(6.52) };
 
 WriteMakefile(%WriteMakefileArgs);
+
 
 
